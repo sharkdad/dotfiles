@@ -45,6 +45,7 @@
 
 ;; Packages
 
+(require 'package)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -67,20 +68,6 @@
   (ivy-mode 1)
   (counsel-mode 1)
   (setq ivy-use-virtual-buffers t))
-
-(use-package prescient
-  :config
-  (prescient-persist-mode 1))
-
-(use-package company-prescient
-  :config
-  (company-prescient-mode 1))
-
-(use-package ivy-prescient
-  :config
-  (ivy-prescient-mode 1))
-
-(use-package magit)
 
 (use-package sly)
 
