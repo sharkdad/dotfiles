@@ -1,4 +1,5 @@
 ;; Visual
+
 (setq modus-themes-italic-constructs t
       modus-themes-bold-constructs t
       modus-themes-fringes 'subtle)
@@ -23,6 +24,7 @@
 
 (require 'dired)
 
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-auto-revert-mode t)
 
 (setq auto-save-timeout 5)
