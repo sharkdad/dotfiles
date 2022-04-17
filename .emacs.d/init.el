@@ -22,9 +22,14 @@
 
 ;; Behavior
 
-(require 'dired)
+(with-eval-after-load 'dired
+  (require 'dired-x)
+  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook 'dired-omit-mode)
+  (define-key dired-mode-map [mouse-2] 'dired-find-file)
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$")))
 
-(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 (global-auto-revert-mode t)
 
 (setq auto-save-timeout 5)
@@ -35,14 +40,12 @@
 (setq common-lisp-style-default "basic")
 (setq custom-file null-device)
 (setq delete-old-versions t)
-(setq dired-kill-when-opening-new-dired-buffer t)
 (setq inferior-lisp-program "sbcl")
 (setq kept-new-versions 10)
 (setq kept-old-versions 0)
 (setq vc-make-backup-files t)
 (setq version-control t)
 
-(define-key dired-mode-map [mouse-2] 'dired-find-file)
 (global-set-key (kbd "<escape>") 'keyboard-quit)
 
 ;; Packages
