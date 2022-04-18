@@ -71,6 +71,7 @@
   :diminish ivy-mode
   :bind (("C-x C-r" . counsel-recentf))
   :config
+  (setq ivy-height 20)
   (ivy-mode t)
   (counsel-mode t))
 
