@@ -69,14 +69,15 @@
 (use-package counsel
   :diminish counsel-mode
   :diminish ivy-mode
+  :bind (("C-x C-r" . counsel-recentf))
   :config
-  (ivy-mode 1)
-  (counsel-mode 1)
-  (setq ivy-use-virtual-buffers t))
+  (ivy-mode t)
+  (counsel-mode t))
 
 (use-package sly)
 
 (use-package smartparens
+  :diminish
   :config
   (require 'smartparens-config)
   (smartparens-global-mode t)
