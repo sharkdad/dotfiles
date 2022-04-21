@@ -9,7 +9,7 @@
 (column-number-mode t)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
-(set-frame-font "Input-10" nil t)
+(set-frame-font "Input-14" nil t)
 (set-fringe-mode 20)
 (tool-bar-mode 0)
 (tooltip-mode 0)
@@ -47,6 +47,9 @@
 (setq version-control t)
 
 (global-set-key (kbd "<escape>") 'keyboard-quit)
+(global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "C-c p") 'previous-buffer)
+(global-set-key (kbd "C-c n") 'next-buffer)
 
 ;; Packages
 
@@ -74,6 +77,10 @@
   (setq ivy-height 20)
   (ivy-mode t)
   (counsel-mode t))
+
+(use-package rainbow-delimiters
+  :config
+  (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 
 (use-package sly)
 
