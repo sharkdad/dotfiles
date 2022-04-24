@@ -61,6 +61,15 @@
 (require 'use-package)
 (setq use-package-always-ensure t)
 
+(use-package amx)
+
+(use-package avy
+  :bind (("C-;" . avy-goto-char)
+	 ("C-'" . avy-goto-char-2)
+	 ("M-g g" . avy-goto-line)
+	 ("M-g w" . avy-goto-word-1)
+	 ("M-g e" . avy-goto-word-0)))
+
 (use-package diminish)
 
 (use-package company
@@ -72,11 +81,14 @@
 (use-package counsel
   :diminish counsel-mode
   :diminish ivy-mode
-  :bind (("C-x C-r" . counsel-recentf))
+  :bind (("C-c s" . swiper)
+	 ("C-x C-r" . counsel-recentf))
   :config
-  (setq ivy-height 20)
+  (setq ivy-height 15)
   (ivy-mode t)
   (counsel-mode t))
+
+(use-package flx)
 
 (use-package rainbow-delimiters
   :config
