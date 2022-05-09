@@ -31,6 +31,7 @@
   (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$")))
 
 (global-auto-revert-mode t)
+(savehist-mode t)
 
 (setq auto-save-timeout 5)
 (setq backup-by-copying t)
