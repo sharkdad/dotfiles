@@ -65,6 +65,7 @@
 (use-package amx)
 
 (use-package avy
+  :demand
   :bind (("C-;" . avy-goto-char)
 	 ("C-'" . avy-goto-char-2)
 	 ("M-g g" . avy-goto-line)
@@ -80,6 +81,7 @@
   (global-company-mode t))
 
 (use-package counsel
+  :demand
   :diminish counsel-mode
   :diminish ivy-mode
   :bind (("C-c s" . swiper)
