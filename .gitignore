@@ -1,6 +1,0 @@
-*
-
-!.gitignore
-
-!.emacs.d/init.el
-!.emacs.d/early-init.el
