@@ -1,0 +1,35 @@
+{
+    "editor.fontFamily": "Cascadia Mono, Consolas, 'Courier New', monospace",
+    "editor.fontSize": 12,
+    "editor.formatOnSave": true,
+    "editor.minimap.enabled": false,
+    "explorer.openEditors.visible": 0,
+    "telemetry.telemetryLevel": "off",
+    "terminal.integrated.fontSize": 12,
+    "workbench.colorTheme": "Night Owl",
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.openPositioning": "first",
+    "workbench.editor.wrapTabs": true,
+    "python.linting.flake8Enabled": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoImportUserSymbols": true,
+    "python.analysis.indexing": true,
+    "python.languageServer": "Pylance",
+    "python.analysis.typeCheckingMode": "strict",
+    "python.analysis.diagnosticMode": "workspace",
+    "python.linting.ignorePatterns": [
+        "**/site-packages/**/*.py",
+        "**/.vscode/**/*.py*"
+    ],
+    "python.analysis.ignore": [
+        ".venv/**/*.py"
+    ],
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "",
+            "depth": 10,
+            "includeAllSymbols": true
+        }
+    ],
+    "python.formatting.provider": "black"
+}
