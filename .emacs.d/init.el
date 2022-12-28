@@ -8,7 +8,7 @@
 (column-number-mode t)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
-(set-frame-font "Fira Code Retina-10" nil t)
+(set-frame-font "Cascadia Mono-10" nil t)
 (set-fringe-mode 12)
 (tool-bar-mode 0)
 

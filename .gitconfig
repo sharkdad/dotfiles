@@ -1,3 +1,7 @@
+[pull]
+	ff = only
+[init]
+	defaultBranch = main
 [user]
-	email = 46014430+sharkdad@users.noreply.github.com
 	name = sharkdad
+	email = 46014430+sharkdad@users.noreply.github.com

@@ -1,0 +1,5 @@
+.config/Code/User/settings.json
+.emacs.d/early-init.el
+.emacs.d/init.el
+.gitconfig
+.zshrc
