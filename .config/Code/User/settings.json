@@ -48,5 +48,8 @@
         "reportUnknownMemberType": "none",
         "reportUnknownParameterType": "none",
         "reportUnknownVariableType": "none",
+    },
+    "explorer.autoRevealExclude": {
+        "**/site-packages": true
     }
 }
