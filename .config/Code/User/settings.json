@@ -1,55 +1,56 @@
 {
-    "editor.fontFamily": "Cascadia Mono, monospace",
-    "editor.fontSize": 12,
-    "editor.formatOnSave": true,
-    "editor.minimap.enabled": false,
-    "explorer.openEditors.visible": 0,
-    "keyboard.dispatch": "keyCode",
-    "problems.showCurrentInStatus": true,
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.autoImportUserSymbols": true,
-    "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.ignore": [
-        ".venv",
-        "/home/brent/.pyenv"
-    ],
-    "python.analysis.indexing": true,
-    "python.analysis.packageIndexDepths": [
-        {
-            "name": "",
-            "depth": 10,
-            "includeAllSymbols": true
-        }
-    ],
-    "python.analysis.typeCheckingMode": "strict",
-    "python.formatting.provider": "black",
-    "python.languageServer": "Pylance",
-    "python.linting.flake8Enabled": true,
-    "python.linting.ignorePatterns": [
-        "**/site-packages/**/*.py",
-        "**/.vscode/**/*.py*",
-        "**/.pyenv/**/*.py"
-    ],
-    "telemetry.telemetryLevel": "off",
-    "terminal.integrated.allowChords": false,
-    "terminal.integrated.fontSize": 12,
-    "terminal.integrated.scrollback": 10000,
-    "terminal.integrated.sendKeybindingsToShell": true,
-    "window.zoomLevel": 0.5,
-    "workbench.colorTheme": "Night Owl",
-    "workbench.editor.enablePreview": false,
-    "workbench.editor.openPositioning": "first",
-    "workbench.editor.revealIfOpen": true,
-    "git.autofetch": true,
-    "python.analysis.diagnosticSeverityOverrides": {
-        "reportMissingTypeStubs": "none",
-        "reportUnknownArgumentType": "none",
-        "reportUnknownLambdaType": "none",
-        "reportUnknownMemberType": "none",
-        "reportUnknownParameterType": "none",
-        "reportUnknownVariableType": "none",
-    },
-    "explorer.autoRevealExclude": {
-        "**/site-packages": true
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "editor.fontFamily": "Cascadia Mono, monospace",
+  "editor.fontSize": 12,
+  "editor.formatOnSave": true,
+  "editor.minimap.enabled": false,
+  "explorer.openEditors.visible": 0,
+  "keyboard.dispatch": "keyCode",
+  "problems.showCurrentInStatus": true,
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoImportUserSymbols": true,
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.ignore": [".venv", "/home/brent/.pyenv"],
+  "python.analysis.indexing": true,
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "",
+      "depth": 10,
+      "includeAllSymbols": true
     }
+  ],
+  "python.analysis.typeCheckingMode": "strict",
+  "python.formatting.provider": "black",
+  "python.languageServer": "Pylance",
+  "python.linting.flake8Enabled": true,
+  "python.linting.ignorePatterns": [
+    "**/site-packages/**/*.py",
+    "**/.vscode/**/*.py*",
+    "**/.pyenv/**/*.py"
+  ],
+  "telemetry.telemetryLevel": "off",
+  "terminal.integrated.allowChords": false,
+  "terminal.integrated.fontSize": 12,
+  "terminal.integrated.scrollback": 10000,
+  "terminal.integrated.sendKeybindingsToShell": true,
+  "window.zoomLevel": 0.5,
+  "workbench.colorTheme": "Night Owl",
+  "workbench.editor.enablePreview": false,
+  "workbench.editor.openPositioning": "first",
+  "workbench.editor.revealIfOpen": true,
+  "git.autofetch": true,
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingTypeStubs": "none",
+    "reportUnknownArgumentType": "none",
+    "reportUnknownLambdaType": "none",
+    "reportUnknownMemberType": "none",
+    "reportUnknownParameterType": "none",
+    "reportUnknownVariableType": "none"
+  },
+  "explorer.autoRevealExclude": {
+    "**/site-packages": true
+  },
+  "git.confirmSync": false
 }

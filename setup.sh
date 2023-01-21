@@ -7,6 +7,9 @@ for f in $(cat dotfiles); do
 
     homefile="$HOME/$f"
     [[ -f "$homefile" ]] && mv "$homefile" "$f"
+
+    homefiledir="$(dirname "$homefile")"
+    mkdir -p "$homefiledir"
     [[ -e "$homefile" ]] && [[ ! -h "$homefile" ]] && echo "check $homefile"
     
     ln -srfn "$f" "$homefile"
