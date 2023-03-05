@@ -12,7 +12,17 @@
   "python.analysis.autoImportCompletions": true,
   "python.analysis.autoImportUserSymbols": true,
   "python.analysis.diagnosticMode": "workspace",
-  "python.analysis.ignore": [".venv", "/home/brent/.pyenv"],
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportMissingTypeStubs": "none",
+    "reportUnknownArgumentType": "none",
+    "reportUnknownLambdaType": "none",
+    "reportUnknownMemberType": "none",
+    "reportUnknownParameterType": "none",
+    "reportUnknownVariableType": "none"
+  },
+  "python.analysis.ignore": [
+    ".venv"
+  ],
   "python.analysis.indexing": true,
   "python.analysis.packageIndexDepths": [
     {
@@ -30,6 +40,7 @@
     "**/.vscode/**/*.py*",
     "**/.pyenv/**/*.py"
   ],
+  "python.testing.pytestEnabled": true,
   "telemetry.telemetryLevel": "off",
   "terminal.integrated.allowChords": false,
   "terminal.integrated.fontSize": 12,
@@ -41,18 +52,10 @@
   "workbench.editor.openPositioning": "first",
   "workbench.editor.revealIfOpen": true,
   "git.autofetch": true,
-  "python.analysis.diagnosticSeverityOverrides": {
-    "reportMissingTypeStubs": "none",
-    "reportUnknownArgumentType": "none",
-    "reportUnknownLambdaType": "none",
-    "reportUnknownMemberType": "none",
-    "reportUnknownParameterType": "none",
-    "reportUnknownVariableType": "none"
-  },
   "explorer.autoRevealExclude": {
     "**/site-packages": true
   },
   "git.confirmSync": false,
-  "python.testing.pytestEnabled": true,
-  "testing.defaultGutterClickAction": "debug"
+  "testing.defaultGutterClickAction": "debug",
+  "extensions.ignoreRecommendations": true
 }
