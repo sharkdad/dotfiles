@@ -22,26 +22,10 @@
 (setq tab-line-close-button-show nil)
 (setq tab-line-new-button-show nil)
 
-;; Behavior
-
-(setq bookmark-save-flag 1)
-(setq completion-ignore-case t)
-(setq custom-file null-device)
-(setq kill-whole-line 1)
-
-(setq-default buffer-file-coding-system 'utf-8-unix)
-(setq-default indent-tabs-mode nil)
-(setq-default tab-width 2)
-
-(global-auto-revert-mode t)
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-(savehist-mode t)
-
 ;; dired
 
 (with-eval-after-load 'dired
   (require 'dired-x)
-  (add-hook 'dired-mode-hook 'dired-hide-details-mode)
   (define-key dired-mode-map [mouse-2] 'dired-find-file)
   (setq dired-kill-when-opening-new-dired-buffer t))
 
@@ -50,75 +34,52 @@
 (setq common-lisp-style-default "basic")
 (setq inferior-lisp-program "sbcl")
 
-;; Backups
+;; Behavior
 
 (setq auto-save-timeout 5)
-(setq backup-by-copying t)
-(setq backup-directory-alist
-      `(("." . ,(concat user-emacs-directory "backups"))))
-(setq create-lockfiles nil)
-(setq delete-old-versions t)
-(setq kept-new-versions 50)
-(setq kept-old-versions 0)
-(setq vc-make-backup-files t)
-(setq version-control t)
+(setq bookmark-save-flag 1)
+(setq completion-ignore-case t)
+(setq custom-file null-device)
+(setq make-backup-files nil)
+
+(global-auto-revert-mode t)
+(savehist-mode t)
+
+(setq enable-recursive-minibuffers t)
+(setq minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+(add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+(setq read-extended-command-predicate
+      #'command-completion-default-include-p)
 
 ;; Packages
 
-(require 'package)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-(use-package amx)
-
-(use-package avy
-  :bind (("C-;" . avy-goto-char)
-	 ("C-'" . avy-goto-char-2)
-	 ("M-g g" . avy-goto-line)
-	 ("M-g w" . avy-goto-word-1)
-	 ("M-g e" . avy-goto-word-0)))
+(straight-use-package 'use-package)
+(setq straight-use-package-by-default t)
 
 (use-package diminish)
 
-(use-package company
-  :demand
-  :diminish
-  :config
-  (setq company-idle-delay 0.5)
-  (global-company-mode t))
-
-(use-package counsel
-  :demand
-  :diminish counsel-mode
-  :diminish ivy-mode
-  :bind (("C-c f" . counsel-git)
-         ("C-c s" . swiper))
-  :config
-  (setq counsel-find-file-ignore-regexp "\\(?:\\`\\|[/\\]\\)\\(?:[#.]\\)")
-  (setq ivy-height 15)
-  (setq ivy-use-virtual-buffers t)
-  (ivy-mode t)
-  (counsel-mode t))
-
-(use-package css-eldoc
-  :config
-  (add-hook 'css-mode-hook 'turn-on-css-eldoc))
-
-(use-package flx)
+(use-package vertico
+  :init
+  (vertico-mode))
 
 (use-package rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
-(use-package slime
-  :config
-  (slime-setup '(slime-asdf slime-company slime-fancy)))
-
-(use-package slime-company)
 
 (use-package smartparens
   :diminish
@@ -126,17 +87,12 @@
   (require 'smartparens-config)
   (sp-pair "{" nil :post-handlers '(("||\n[i]" "RET")))
   (smartparens-global-mode t)
-  (smartparens-global-strict-mode t)
-  (sp-use-smartparens-bindings))
+  (smartparens-global-strict-mode t))
 
 (use-package which-key
   :demand
   :diminish which-key-mode
-  :bind (("C-h C-b" . which-key-show-top-level))
   :config
   (which-key-mode))
 
-(use-package magit
-  :bind (("C-c g" . magit-file-dispatch))
-  :config
-  (setq magit-diff-refine-hunk 'all))
+(use-package magit)
