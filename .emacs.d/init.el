@@ -15,6 +15,7 @@
 (setq frame-resize-pixelwise t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
+(setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 
 (defun set-window-width (n)
@@ -57,17 +58,6 @@
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 
-;; Global keybinds
-
-;; display-buffer
-;; switch-to-buffer
-
-(bind-keys*
- ("M-o" . other-window)
- ("C-x k" . kill-current-buffer)
- ("C-x C-b" . ibuffer)
- ("C-c 8" . set-80-columns))
-
 ;; Packages
 
 (with-eval-after-load 'dired
@@ -85,6 +75,18 @@
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+;; Global keybinds
+
+;; display-buffer
+;; switch-to-buffer
+
+(bind-keys*
+ ("M-o" . other-window)
+ ("C-x k" . kill-current-buffer)
+ ("C-x C-b" . ibuffer)
+ ("C-c 8" . set-80-columns))
+
 
 (use-package night-owl-theme
   :config

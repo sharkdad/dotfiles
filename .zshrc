@@ -1,13 +1,12 @@
-# C:/msys64/msys2_shell.cmd -defterm -here -no-start -mingw64 -use-full-path -shell zsh
-
 export INFOPATH="$INFOPATH:$HOME/info:"
+export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
 
 alias diff='diff --color=auto'
-# TODO: kill this
-# alias emacs='nohup C:/Program\ Files/Emacs/emacs-28.2/bin/emacs.exe &>/dev/null &'
 alias grep='grep --color=auto'
 alias ls='ls --color=auto'
+alias la='ls -A'
 alias ll='ls -l'
+alias lla='ls -lA'
 
 HISTFILE=~/.histfile
 HISTSIZE=10000
