@@ -1,6 +1,3 @@
-export INFOPATH="$INFOPATH:$HOME/info:"
-export PATH="$HOME/bin:$HOME/.local/bin:$PATH"
-
 alias diff='diff --color=auto'
 alias grep='grep --color=auto'
 alias ls='ls --color=auto'
@@ -16,6 +13,11 @@ setopt inc_append_history
 setopt share_history
 unsetopt beep
 bindkey -e
+
+export ASDF_DIR=$HOME/.asdf
+if [[ -f $ASDF_DIR/asdf.sh ]]; then
+  . $ASDF_DIR/asdf.sh
+fi
 
 zstyle :compinstall filename '$HOME/.zshrc'
 autoload -Uz compinit

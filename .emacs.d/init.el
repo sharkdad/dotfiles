@@ -11,6 +11,8 @@
 (set-fringe-mode 12)
 (tool-bar-mode 0)
 
+(setq display-buffer-base-action
+  '((display-buffer-reuse-window display-buffer-in-previous-window)))
 (setq even-window-heights nil)
 (setq frame-resize-pixelwise t)
 (setq inhibit-startup-message t)
@@ -27,6 +29,22 @@
   (interactive)
   (set-window-width 80))
 
+(defun move-buffer-other-window ()
+  "Put the buffer from the selected window in other window"
+  (interactive)
+  (let* ((buffer (window-buffer))
+     (other-window (next-window)))
+    (quit-window)
+    (select-window other-window)
+    (switch-to-buffer buffer)))
+
+(defun toggle-maximize ()
+  "Kill other windows or winner-undo"
+  (interactive)
+  (if (frame-root-window-p (get-buffer-window))
+      (winner-undo)
+    (delete-other-windows)))
+
 ;; Languages
 
 (setq common-lisp-style-default "basic")
@@ -38,6 +56,7 @@
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
 (setq custom-file null-device)
+(setq kill-whole-line 1)
 (setq make-backup-files nil)
 (setq switch-to-buffer-obey-display-actions t)
 (setq vc-follow-symlinks t)
@@ -45,6 +64,7 @@
 (global-auto-revert-mode t)
 (electric-pair-mode t)
 (savehist-mode t)
+(winner-mode t)
 
 ;; Allow using minibuffer when in minibuffer
 (setq enable-recursive-minibuffers t)
@@ -57,6 +77,12 @@
 ;; Hide commands in M-x which do not work in the current mode.
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
+
+;; eshell
+
+(with-eval-after-load 'em-term
+  (dolist (c '("guix" "wget" "vim" "links" "aptitude" "screen"))
+  (add-to-list 'eshell-visual-commands c)))
 
 ;; Packages
 
@@ -83,10 +109,12 @@
 
 (bind-keys*
  ("M-o" . other-window)
+ ("M-`" . toggle-maximize)
  ("C-x k" . kill-current-buffer)
+ ("C-x o" . move-buffer-other-window)
  ("C-x C-b" . ibuffer)
- ("C-c 8" . set-80-columns))
-
+ ("C-c 8" . set-80-columns)
+ ("C-c n" . pop-to-buffer))
 
 (use-package night-owl-theme
   :config
@@ -102,6 +130,9 @@
 (use-package rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
+
+(use-package expand-region
+  :bind ("C-=" . er/expand-region))
 
 (use-package magit)
 
