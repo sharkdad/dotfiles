@@ -107,14 +107,14 @@
 ;; display-buffer
 ;; switch-to-buffer
 
-(bind-keys*
+(bind-keys
  ("M-o" . other-window)
  ("M-`" . toggle-maximize)
  ("C-x k" . kill-current-buffer)
- ("C-x o" . move-buffer-other-window)
  ("C-x C-b" . ibuffer)
  ("C-c 8" . set-80-columns)
- ("C-c n" . pop-to-buffer))
+ ("C-c n" . pop-to-buffer)
+ ("C-c o" . move-buffer-other-window))
 
 (use-package night-owl-theme
   :config
