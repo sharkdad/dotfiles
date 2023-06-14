@@ -1,4 +1,5 @@
 {
+  "vim.useSystemClipboard": true,
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
@@ -11,11 +12,8 @@
   "problems.showCurrentInStatus": true,
   "python.analysis.autoImportCompletions": true,
   "python.analysis.autoImportUserSymbols": true,
-  "python.analysis.diagnosticMode": "workspace",        
-  "python.analysis.ignore": [
-    ".venv",
-    "/home/brent/.pyenv"
-  ],
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.ignore": [".venv", "/home/brent/.pyenv"],
   "python.analysis.indexing": true,
   "python.analysis.packageIndexDepths": [
     {
@@ -33,7 +31,6 @@
     "**/.vscode/**/*.py*",
     "**/.pyenv/**/*.py"
   ],
-  "python.testing.pytestEnabled": true,
   "telemetry.telemetryLevel": "off",
   "terminal.integrated.allowChords": false,
   "terminal.integrated.fontSize": 12,
@@ -60,5 +57,6 @@
   "git.confirmSync": false,
   "python.testing.pytestEnabled": true,
   "testing.defaultGutterClickAction": "debug",
-  "extensions.ignoreRecommendations": true
+  "extensions.ignoreRecommendations": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

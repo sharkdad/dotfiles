@@ -163,3 +163,10 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles basic partial-completion)))))
 
+(use-package eglot)
+
+(use-package tree-sitter)
+
+(use-package tree-sitter-langs)
+
+(use-package csharp-mode)
