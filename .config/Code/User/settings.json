@@ -1,21 +1,22 @@
 {
-  "editor.codeActionsOnSave": {
-    "source.organizeImports": true
+  "[python]": {
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.fontFamily": "Cascadia Mono",
-  "editor.fontSize": 14,
-  "editor.formatOnSave": true,
   "editor.minimap.enabled": false,
   "editor.wordWrap": "on",
   "explorer.autoRevealExclude": {
     "**/site-packages": true
   },
-  "explorer.openEditors.visible": 0,
   "extensions.ignoreRecommendations": true,
   "git.autofetch": true,
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
+  "isort.args":["--profile", "black"],
   "keyboard.dispatch": "keyCode",
   "problems.showCurrentInStatus": true,
   "python.analysis.autoImportCompletions": true,
@@ -30,10 +31,7 @@
     "reportUnknownParameterType": "none",
     "reportUnknownVariableType": "none"
   },
-  "python.analysis.ignore": [
-    ".venv",
-    "/home/brent/.pyenv"
-  ],
+  "python.analysis.ignore": [".venv"],
   "python.analysis.indexing": true,
   "python.analysis.packageIndexDepths": [
     {
@@ -43,24 +41,18 @@
     }
   ],
   "python.analysis.typeCheckingMode": "strict",
-  "python.formatting.provider": "black",
-  "python.languageServer": "Pylance",
   "python.linting.flake8Enabled": true,
   "python.linting.ignorePatterns": [
     "**/site-packages/**/*.py",
     "**/.vscode/**/*.py*",
-    "**/.pyenv/**/*.py"
   ],
   "python.testing.pytestEnabled": true,
   "telemetry.telemetryLevel": "off",
-  "terminal.integrated.defaultLocation": "editor",
-  "terminal.integrated.fontSize": 14,
   "terminal.integrated.scrollback": 10000,
   "testing.defaultGutterClickAction": "debug",
-  "vim.useSystemClipboard": true,
   "window.menuBarVisibility": "toggle",
+  "window.zoomLevel": 1,
   "workbench.colorTheme": "Ayu Dark",
   "workbench.editor.enablePreview": false,
-  "workbench.editor.openPositioning": "first",
   "workbench.editor.revealIfOpen": true
 }
