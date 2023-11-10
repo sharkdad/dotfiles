@@ -1,71 +1,45 @@
 ;; Visual
 
 (column-number-mode t)
-
 (global-hl-line-mode 1)
-(global-visual-line-mode 1)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (show-paren-mode 1)
-(set-frame-font "Cascadia Mono-13" nil t)
+(set-frame-font "Cascadia Mono-9" nil t)
 (set-fringe-mode 12)
 (tool-bar-mode 0)
+(winner-mode t)
 
-(setq display-buffer-base-action
-  '((display-buffer-reuse-window display-buffer-in-previous-window)))
-(setq even-window-heights nil)
 (setq frame-resize-pixelwise t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
-(setq split-width-threshold 200)
-(setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 
-(defun set-window-width (n)
-  "Set the selected window's width."
-  (adjust-window-trailing-edge (selected-window) (- n (window-width)) t))
-
-(defun set-80-columns ()
-  "Set the selected window to 80 columns."
-  (interactive)
-  (set-window-width 80))
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 (defun move-buffer-other-window ()
   "Put the buffer from the selected window in other window"
   (interactive)
   (let* ((buffer (window-buffer))
-     (other-window (next-window)))
+     (curr-window (selected-window)))
     (quit-window)
-    (select-window other-window)
-    (switch-to-buffer buffer)))
-
-(defun toggle-maximize ()
-  "Kill other windows or winner-undo"
-  (interactive)
-  (if (frame-root-window-p (get-buffer-window))
-      (winner-undo)
-    (delete-other-windows)))
-
-;; Languages
-
-(setq common-lisp-style-default "basic")
-(setq inferior-lisp-program "sbcl")
+    (select-window curr-window)
+    (switch-to-buffer-other-window buffer)))
 
 ;; Behavior
 
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
-(setq custom-file null-device)
 (setq kill-whole-line 1)
 (setq make-backup-files nil)
 (setq vc-follow-symlinks t)
 
 (global-auto-revert-mode t)
 (electric-pair-mode t)
+(recentf-mode t)
 (repeat-mode t)
 (savehist-mode t)
-(winner-mode t)
 
 ;; Allow using minibuffer when in minibuffer
 (setq enable-recursive-minibuffers t)
@@ -83,7 +57,6 @@
 
 (with-eval-after-load 'dired
   (require 'dired-x)
-  (define-key dired-mode-map [mouse-2] 'dired-find-file)
   (setq dired-kill-when-opening-new-dired-buffer t)
   (setq dired-omit-files
         (concat dired-omit-files "\\|^\\..+$"))
@@ -95,26 +68,23 @@
 (package-initialize)
 (unless package-archive-contents
   (package-refresh-contents))
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(require 'use-package)
+(require 'use-package-ensure)
 (setq use-package-always-ensure t)
 
 ;; Global keybinds
 
 (bind-keys
  ("M-o" . other-window)
- ("M-`" . toggle-maximize)
+ ("C-<tab>" . winner-undo)
+ ("C-S-<tab>" . winner-redo)
+ ("C-<iso-lefttab>" . winner-redo)
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer)
- ("C-c 8" . set-80-columns)
  ("C-c o" . move-buffer-other-window))
 
 (use-package ef-themes
   :config
   (load-theme 'ef-night t))
-
-(use-package night-owl-theme)
 
 (use-package diminish)
 
@@ -126,9 +96,6 @@
 (use-package rainbow-delimiters
   :config
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
-
-(use-package expand-region
-  :bind ("C-=" . er/expand-region))
 
 (use-package magit
   :init
@@ -217,32 +184,19 @@
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
          ("M-r" . consult-history))                ;; orig. previous-matching-history-element
-
-  ;; Enable automatic preview at point in the *Completions* buffer. This is
-  ;; relevant when you use the default completion UI.
-  ;; :hook (completion-list-mode . consult-preview-at-point-mode)
-
-  ;; The :init configuration is always executed (Not lazy)
   :init
-
   ;; Optionally configure the register formatting. This improves the register
   ;; preview for `consult-register', `consult-register-load',
   ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
-
   ;; Optionally tweak the register preview window.
   ;; This adds thin lines, sorting and hides the mode line of the window.
   (advice-add #'register-preview :override #'consult-register-window)
-
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
-
-  ;; Configure other variables and modes in the :config section,
-  ;; after lazily loading the package.
   :config
-
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
@@ -253,13 +207,6 @@
    consult--source-recent-file consult--source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
-
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
-
-(use-package eglot)
-
-(use-package tree-sitter)
-
-(use-package tree-sitter-langs)
