@@ -1,11 +1,15 @@
 ;; Visual
 
+(if (string= (system-name) "cerberus")
+    (set-frame-font "Cascadia Mono-13" nil t))
+(if (string= (system-name) "amnesia")
+    (set-frame-font "Cascadia Mono-9" nil t))
+
 (column-number-mode t)
 (global-hl-line-mode 1)
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (show-paren-mode 1)
-(set-frame-font "Cascadia Mono-9" nil t)
 (set-fringe-mode 12)
 (tool-bar-mode 0)
 (winner-mode t)
@@ -13,6 +17,7 @@
 (setq frame-resize-pixelwise t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
+(setq split-height-threshold nil)
 (setq visible-bell t)
 
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
@@ -31,6 +36,7 @@
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
+(setq custom-file null-device)
 (setq kill-whole-line 1)
 (setq make-backup-files nil)
 (setq vc-follow-symlinks t)
@@ -210,3 +216,4 @@
   ;; Optionally configure the narrowing key.
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
+
