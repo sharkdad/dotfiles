@@ -217,3 +217,6 @@
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
 
+(use-package pet
+  :config
+  (add-hook 'python-base-mode-hook 'pet-mode -10))
