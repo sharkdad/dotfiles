@@ -37,6 +37,7 @@
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
 (setq custom-file null-device)
+(setq kill-buffer-delete-auto-save-files t)
 (setq kill-whole-line 1)
 (setq make-backup-files nil)
 (setq vc-follow-symlinks t)
@@ -79,8 +80,9 @@
 
 ;; Global keybinds
 
-(bind-keys
+(bind-keys*
  ("M-o" . other-window)
+ ("M-`" . consult-buffer)
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
