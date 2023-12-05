@@ -64,6 +64,7 @@
 
 (with-eval-after-load 'dired
   (require 'dired-x)
+  (setq dired-dwim-target t)
   (setq dired-kill-when-opening-new-dired-buffer t)
   (setq dired-omit-files
         (concat dired-omit-files "\\|^\\..+$"))
