@@ -220,6 +220,13 @@
   ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
 
+(use-package treesit-auto
+  :custom
+  (treesit-auto-install 'prompt)
+  :config
+  (treesit-auto-add-to-auto-mode-alist 'all)
+  (global-treesit-auto-mode))
+
 (use-package pet
   :config
   (add-hook 'python-base-mode-hook 'pet-mode -10))
