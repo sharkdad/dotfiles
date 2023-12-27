@@ -35,6 +35,7 @@
 
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
+(setq c-default-style "java")
 (setq completion-ignore-case t)
 (setq custom-file null-device)
 (setq kill-buffer-delete-auto-save-files t)
@@ -69,6 +70,10 @@
   (setq dired-omit-files
         (concat dired-omit-files "\\|^\\..+$"))
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
+
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(glsl-ts-mode . ("glsl_analyzer"))))
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -224,6 +229,29 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
+  (define-derived-mode glsl-ts-mode c-ts-base-mode "GLSL"
+    "Major mode for editing GLSL, powered by tree-sitter."
+    (when (treesit-ready-p 'glsl)
+      (treesit-parser-create 'glsl)
+      (setq-local comment-start "/* ")
+      (setq-local comment-end " */")
+      (setq-local treesit-simple-indent-rules
+                  (c-ts-mode--get-indent-style 'c))
+      (setq-local treesit-font-lock-settings (c-ts-mode--font-lock-settings 'c))
+      (setq-local treesit-defun-tactic 'top-level)
+      (treesit-major-mode-setup)))
+  
+  (setq-local glsl-tsauto-config
+	      (make-treesit-auto-recipe
+	       :lang 'glsl
+	       :ts-mode 'glsl-ts-mode
+	       :url "https://github.com/theHamsta/tree-sitter-glsl"
+	       ;; :ext "\\.\\(?:frag\\|vert\\|glsl\\)\\'"))
+	       :ext "\\.frag\\'"))
+  
+  (add-to-list 'treesit-auto-recipe-list glsl-tsauto-config)
+  (add-to-list 'treesit-auto-langs 'glsl)
+  
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
