@@ -33,6 +33,10 @@
 
 ;; Behavior
 
+;; TODO: c hungry delete and auto newline mode
+;; c context line break and open line
+;; maybe subword mode
+
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
 (setq c-default-style "java")
@@ -61,7 +65,12 @@
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 
-;; Packages
+;; Modules and packages
+
+(defun go-config ()
+  (setq-local go-ts-mode-indent-offset 4)
+  (setq-local tab-width 4))
+(add-hook 'go-ts-mode-hook 'go-config)
 
 (with-eval-after-load 'dired
   (require 'dired-x)
@@ -229,29 +238,7 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (define-derived-mode glsl-ts-mode c-ts-base-mode "GLSL"
-    "Major mode for editing GLSL, powered by tree-sitter."
-    (when (treesit-ready-p 'glsl)
-      (treesit-parser-create 'glsl)
-      (setq-local comment-start "/* ")
-      (setq-local comment-end " */")
-      (setq-local treesit-simple-indent-rules
-                  (c-ts-mode--get-indent-style 'c))
-      (setq-local treesit-font-lock-settings (c-ts-mode--font-lock-settings 'c))
-      (setq-local treesit-defun-tactic 'top-level)
-      (treesit-major-mode-setup)))
-  
-  (setq-local glsl-tsauto-config
-	      (make-treesit-auto-recipe
-	       :lang 'glsl
-	       :ts-mode 'glsl-ts-mode
-	       :url "https://github.com/theHamsta/tree-sitter-glsl"
-	       ;; :ext "\\.\\(?:frag\\|vert\\|glsl\\)\\'"))
-	       :ext "\\.frag\\'"))
-  
-  (add-to-list 'treesit-auto-recipe-list glsl-tsauto-config)
-  (add-to-list 'treesit-auto-langs 'glsl)
-  
+  (setq treesit-auto-langs '(go gomod javascript tsx typescript))  
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
