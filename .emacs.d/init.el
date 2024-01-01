@@ -36,6 +36,7 @@
 ;; TODO: c hungry delete and auto newline mode
 ;; c context line break and open line
 ;; maybe subword mode
+;; activate c-mode for glsl files
 
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
@@ -80,6 +81,7 @@
         (concat dired-omit-files "\\|^\\..+$"))
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
+;; TODO glsl_analyzer for c-mode glsl files
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode . ("glsl_analyzer"))))
@@ -104,6 +106,11 @@
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer)
  ("C-c o" . move-buffer-other-window))
+
+(use-package avy
+  :bind (("C-'" . avy-goto-char-timer)
+	 ("M-g g" . avy-goto-line)
+	 ("M-g M-g" . avy-goto-line)))
 
 (use-package ef-themes
   :config
@@ -179,8 +186,6 @@
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
          ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
-         ("M-g g" . consult-goto-line)             ;; orig. goto-line
-         ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
          ("M-g m" . consult-mark)
          ("M-g k" . consult-global-mark)
