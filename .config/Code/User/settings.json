@@ -1,11 +1,11 @@
 {
-  "[python]": {
+  "[go][go.mod]": {
+    "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
       "source.organizeImports": true
-    },
-    "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": true,
+    }
   },
+  "editor.accessibilitySupport": "off",
   "editor.fontFamily": "Cascadia Mono",
   "editor.minimap.enabled": false,
   "editor.wordWrap": "on",
@@ -17,6 +17,7 @@
   "git.confirmSync": false,
   "git.enableSmartCommit": true,
   "isort.args":["--profile", "black"],
+  "jest.autoRun": "off",
   "keyboard.dispatch": "keyCode",
   "problems.showCurrentInStatus": true,
   "python.analysis.autoImportCompletions": true,

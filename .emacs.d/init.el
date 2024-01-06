@@ -43,10 +43,18 @@
 (setq c-default-style "java")
 (setq completion-ignore-case t)
 (setq custom-file null-device)
+(setq interpreter-mode-alist nil)
 (setq kill-buffer-delete-auto-save-files t)
 (setq kill-whole-line 1)
+(setq line-move-visual nil)
+(setq mac-command-modifier 'meta)
 (setq make-backup-files nil)
+(setq shell-command-prompt-show-cwd t)
+(setq tab-always-indent 'complete)
+(setq use-short-answers t)
 (setq vc-follow-symlinks t)
+
+(setq-default word-wrap t)
 
 (global-auto-revert-mode t)
 (electric-pair-mode t)
@@ -66,12 +74,34 @@
 (setq read-extended-command-predicate
       #'command-completion-default-include-p)
 
+(defun adjust-indenting ()
+  "Adjust indenting based on major mode"
+  (interactive)
+  (cond ((derived-mode-p 'typescript-ts-mode)
+	 (setq-local typescript-ts-mode-indent-offset 4))
+	((derived-mode-p 'js-ts-mode)
+	 (setq-local js-indent-level 2))
+	(t (message "Can't adjust indent in this major mode"))))
+
 ;; Modules and packages
 
 (defun go-config ()
   (setq-local go-ts-mode-indent-offset 4)
   (setq-local tab-width 4))
 (add-hook 'go-ts-mode-hook 'go-config)
+
+(with-eval-after-load 'shell
+  (defun comint-dont-scroll ()
+    (make-local-variable 'comint-output-filter-functions)
+    (remove-hook 'comint-output-filter-functions 'comint-postoutput-scroll-to-bottom t)
+    (setq-local comint-scroll-show-maximum-output nil)
+    (setq-local comint-scroll-to-bottom-on-input 'this)
+    (setq-local window-point-insertion-type nil))
+  (add-hook 'shell-mode-hook 'comint-dont-scroll))
+
+(with-eval-after-load 'compile
+  (setq compilation-environment '("TERM=dumb"))
+  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter))
 
 (with-eval-after-load 'dired
   (require 'dired-x)
@@ -81,10 +111,28 @@
         (concat dired-omit-files "\\|^\\..+$"))
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
-;; TODO glsl_analyzer for c-mode glsl files
+(with-eval-after-load 'js
+  (setq interpreter-mode-alist nil))
+
 (with-eval-after-load 'eglot
+  (setq eglot-autoshutdown t)
+  (setq eglot-confirm-server-initiated-edits nil)
+  (setq eglot-events-buffer-size 0)
+  (setq eglot-ignored-server-capabilities
+	'(:colorProvider
+	  :inlayHintProvider))
+  ;; TODO glsl_analyzer for c-mode glsl files
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode . ("glsl_analyzer"))))
+
+(with-eval-after-load 'project
+  (setq project-vc-extra-root-markers
+	'("package.json"
+	  "pyproject.toml"
+	  "requirements.txt")))
+
+(with-eval-after-load 'python
+  (setq interpreter-mode-alist nil))
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
@@ -105,10 +153,17 @@
  ("C-<iso-lefttab>" . winner-redo)
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer)
- ("C-c o" . move-buffer-other-window))
+ ("C-c i" . adjust-indenting)
+ ("C-c o" . move-buffer-other-window)
+ ("C-." . eglot-code-action-quickfix))
+
+(use-package mode-line-bell
+  :config
+  (mode-line-bell-mode))
 
 (use-package avy
-  :bind (("C-'" . avy-goto-char-timer)
+  :bind (("C-;" . avy-goto-line)
+	 ("C-'" . avy-goto-char-2)
 	 ("M-g g" . avy-goto-line)
 	 ("M-g M-g" . avy-goto-line)))
 
@@ -129,12 +184,21 @@
 
 (use-package magit
   :init
-  (setq magit-diff-refine-hunk 'all))
+  (setq magit-diff-refine-hunk 'all)
+  (setq magit-section-initial-visibility-alist
+        '((stashes . hide)
+	  (file . hide))))
 
 (use-package corfu
   :custom
-  (corfu-auto t)                 ;; Enable auto completion
   (corfu-separator ?\s)          ;; Orderless field separator
+  (corfu-quit-at-boundary nil)
+  (corfu-quit-no-match nil)
+  (corfu-preview-current nil)
+  (corfu-preselect 'first)
+  :bind
+  (:map corfu-map
+        ("SPC" . corfu-insert-separator))
   :init
   (global-corfu-mode)
   (defun corfu-enable-in-minibuffer ()
@@ -243,7 +307,21 @@
   :custom
   (treesit-auto-install 'prompt)
   :config
-  (setq treesit-auto-langs '(go gomod javascript tsx typescript))  
+  (setq treesit-auto-langs
+	'(css
+	  dockerfile
+	  go
+	  gomod
+	  html
+	  javascript
+	  json
+	  makefile
+	  markdown
+	  python
+	  toml
+	  tsx
+	  typescript
+	  yaml))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
