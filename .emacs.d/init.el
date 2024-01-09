@@ -1,8 +1,8 @@
 ;; Visual
 
-(if (string= (system-name) "cerberus")
+(if (string= (downcase (system-name)) "cerberus")
     (set-frame-font "Cascadia Mono-13" nil t))
-(if (string= (system-name) "amnesia")
+(if (string= (downcase (system-name)) "amnesia")
     (set-frame-font "Cascadia Mono-9" nil t))
 
 (column-number-mode t)
@@ -328,3 +328,7 @@
 (use-package pet
   :config
   (add-hook 'python-base-mode-hook 'pet-mode -10))
+
+(use-package squirrel-mode
+  :config
+  (add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode)))
