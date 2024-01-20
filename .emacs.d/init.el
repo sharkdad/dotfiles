@@ -48,12 +48,15 @@
 (setq kill-whole-line 1)
 (setq line-move-visual nil)
 (setq mac-command-modifier 'meta)
+(setq mac-option-modifier 'super)
 (setq make-backup-files nil)
+(setq recentf-max-saved-items 200)
 (setq shell-command-prompt-show-cwd t)
 (setq tab-always-indent 'complete)
 (setq use-short-answers t)
 (setq vc-follow-symlinks t)
 
+(setq-default indent-tabs-mode nil)
 (setq-default word-wrap t)
 
 (global-auto-revert-mode t)
@@ -87,6 +90,7 @@
 
 (defun go-config ()
   (setq-local go-ts-mode-indent-offset 4)
+  (setq-local indent-tabs-mode t)
   (setq-local tab-width 4))
 (add-hook 'go-ts-mode-hook 'go-config)
 
