@@ -118,6 +118,7 @@
   (setq eglot-autoshutdown t)
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
+  (setq eglot-extend-to-xref t)
   (setq eglot-ignored-server-capabilities
 	'(:colorProvider
 	  :inlayHintProvider))
