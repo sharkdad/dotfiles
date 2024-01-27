@@ -373,4 +373,8 @@
 
 (use-package squirrel-mode
   :config
-  (add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode)))
+  ;; (add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode))
+  (defun squirrel-config ()
+    (setq-local indent-tabs-mode t)
+    (setq-local tab-width 4))
+  (add-hook 'squirrel-mode-hook 'squirrel-config))
