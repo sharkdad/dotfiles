@@ -151,7 +151,7 @@
 
 (use-package ef-themes
   :config
-  (load-theme 'ef-night t))
+  (load-theme 'ef-bio t))
 
 (use-package marginalia
   :init
@@ -341,6 +341,8 @@
 
 (with-eval-after-load 'js
   (setq interpreter-mode-alist nil))
+
+(use-package markdown-mode)
 
 (with-eval-after-load 'python
   (setq interpreter-mode-alist nil))
