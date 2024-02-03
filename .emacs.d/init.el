@@ -369,9 +369,9 @@
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-(use-package pet
-  :config
-  (add-hook 'python-base-mode-hook 'pet-mode -10))
+;; (use-package pet
+;;   :config
+;;   (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 (use-package squirrel-mode
   :config
@@ -380,3 +380,7 @@
     (setq-local indent-tabs-mode t)
     (setq-local tab-width 4))
   (add-hook 'squirrel-mode-hook 'squirrel-config))
+
+(use-package realgud
+  :custom
+  (realgud-safe-mode nil))
