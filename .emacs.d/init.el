@@ -54,6 +54,7 @@
 (use-package consult
   :bind
   (([remap Info-search] . consult-info)
+   ("C-c h" . consult-history)
    ("C-x M-:" . consult-complex-command)
    ("C-x b" . consult-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
@@ -87,6 +88,8 @@
    ("M-s e" . consult-isearch-history)
    ("M-s l" . consult-line)
    ("M-s L" . consult-line-multi)
+   :map comint-mode-map
+   ("M-r" . consult-history)
    :map minibuffer-local-map
    ("M-s" . consult-history)
    ("M-r" . consult-history))
@@ -185,6 +188,8 @@
 
 (use-package which-key
   :diminish which-key-mode
+  :custom
+  (which-key-idle-delay 0.5)
   :config
   (which-key-mode))
 
@@ -294,13 +299,10 @@
 	  (file . hide))))
 
 (with-eval-after-load 'shell
-  (defun comint-dont-scroll ()
-    (make-local-variable 'comint-output-filter-functions)
-    (remove-hook 'comint-output-filter-functions 'comint-postoutput-scroll-to-bottom t)
-    (setq-local comint-scroll-show-maximum-output nil)
-    (setq-local comint-scroll-to-bottom-on-input 'this)
-    (setq-local window-point-insertion-type nil))
-  (add-hook 'shell-mode-hook 'comint-dont-scroll))
+  (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
+  (defun zsh-shell-mode-setup ()
+    (setq-local comint-process-echoes t))
+  (add-hook 'shell-mode-hook #'zsh-shell-mode-setup))
 
 (with-eval-after-load 'compile
   (setq compilation-environment '("TERM=dumb"))
@@ -369,9 +371,9 @@
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
-;; (use-package pet
-;;   :config
-;;   (add-hook 'python-base-mode-hook 'pet-mode -10))
+(use-package pet
+  :config
+  (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 (use-package squirrel-mode
   :config
