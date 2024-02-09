@@ -27,6 +27,7 @@
 
 (column-number-mode t)
 (global-auto-revert-mode t)
+(global-goto-address-mode t)
 (global-hl-line-mode 1)
 (recentf-mode t)
 (repeat-mode t)
@@ -43,6 +44,10 @@
 (setq shell-command-prompt-show-cwd t)
 (setq split-height-threshold nil)
 (setq use-short-answers t)
+
+(use-package ace-window
+  :bind
+  (("M-o" . ace-window)))
 
 (use-package avy
   :bind
@@ -189,7 +194,9 @@
 (use-package which-key
   :diminish which-key-mode
   :custom
-  (which-key-idle-delay 0.5)
+  (which-key-show-early-on-C-h t)
+  (which-key-idle-delay 10000)
+  (which-key-idle-secondary-delay 0.05)
   :config
   (which-key-mode))
 
@@ -213,7 +220,6 @@
    (t (message "Can't adjust indent in this major mode"))))
 
 (bind-keys*
- ("M-o" . other-window)
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
@@ -383,6 +389,10 @@
     (setq-local tab-width 4))
   (add-hook 'squirrel-mode-hook 'squirrel-config))
 
-(use-package realgud
-  :custom
-  (realgud-safe-mode nil))
+(use-package dape
+  :init
+  (setq dape-buffer-window-arrangement 'gud)
+  :config
+  (add-hook 'dape-on-start-hooks
+            (defun dape--save-on-start ()
+              (save-some-buffers t t))))
