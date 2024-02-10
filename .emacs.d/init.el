@@ -159,7 +159,7 @@
 
 (use-package ef-themes
   :config
-  (load-theme 'ef-bio t))
+  (load-theme 'ef-winter t))
 
 (use-package marginalia
   :init
