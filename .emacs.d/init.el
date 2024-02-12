@@ -136,14 +136,10 @@
 
 (use-package corfu
   :custom
-  (corfu-separator ?\s)          ;; Orderless field separator
-  (corfu-quit-at-boundary nil)
-  (corfu-quit-no-match nil)
-  (corfu-preview-current nil)
-  (corfu-preselect 'first)
+  (corfu-auto t)
   :bind
   (:map corfu-map
-        ("SPC" . corfu-insert-separator))
+        ("RET" . nil))
   :init
   (global-corfu-mode)
   (defun corfu-enable-in-minibuffer ()
@@ -220,6 +216,7 @@
    (t (message "Can't adjust indent in this major mode"))))
 
 (bind-keys*
+ ("M-o" . ace-window)
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
@@ -258,6 +255,7 @@
 (add-to-list 'electric-indent-functions-without-reindent 'indent-basic)
 
 (setq-default indent-tabs-mode nil)
+(setq-default tab-width 4)
 (setq-default word-wrap t)
 
 (electric-pair-mode t)
