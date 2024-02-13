@@ -231,7 +231,7 @@
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
-(setq custom-file null-device)
+(setq custom-file (make-temp-file "emacs-custom"))
 (setq interpreter-mode-alist nil)
 (setq kill-buffer-delete-auto-save-files t)
 (setq make-backup-files nil)
@@ -300,7 +300,7 @@
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist
         '((stashes . hide)
-	  (file . hide))))
+	      (file . hide))))
 
 (with-eval-after-load 'shell
   (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
@@ -394,3 +394,17 @@
   (add-hook 'dape-on-start-hooks
             (defun dape--save-on-start ()
               (save-some-buffers t t))))
+
+(defun web-mode-setup ()
+  (setq-local electric-indent-inhibit t)
+  (setq-local tab-width 2)
+  (electric-pair-local-mode -1)
+  (web-mode-set-engine "django"))
+(use-package web-mode
+  :hook html-mode
+  :hook (web-mode . web-mode-setup)
+  :custom
+  (web-mode-code-indent-offset 2)
+  (web-mode-css-indent-offset 2)
+  (web-mode-markup-comment-indent-offset 2)
+  (web-mode-markup-indent-offset 2))
