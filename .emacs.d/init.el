@@ -397,6 +397,7 @@
 
 (defun web-mode-setup ()
   (setq-local electric-indent-inhibit t)
+  (setq-local indent-region-function #'indent-region-line-by-line)
   (setq-local tab-width 2)
   (electric-pair-local-mode -1)
   (web-mode-set-engine "django"))
