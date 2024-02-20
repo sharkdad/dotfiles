@@ -1,3 +1,5 @@
+;; -*- lexical-binding: t; -*-
+
 ;; Font
 
 (let* ((host (downcase (system-name)))
@@ -21,10 +23,6 @@
 
 ;; UI
 
-;; TODO:
-;; highlight trailing whitespace
-;; highlight tabs (disable for tab modes)
-
 (column-number-mode t)
 (global-auto-revert-mode t)
 (global-goto-address-mode t)
@@ -36,6 +34,7 @@
 (show-paren-mode 1)
 (winner-mode t)
 
+(setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
 (setq mac-command-modifier 'meta)
@@ -43,7 +42,21 @@
 (setq recentf-max-saved-items 200)
 (setq shell-command-prompt-show-cwd t)
 (setq split-height-threshold nil)
+(setq switch-to-buffer-in-dedicated-window 'pop)
+(setq switch-to-buffer-obey-display-actions t)
 (setq use-short-answers t)
+
+(defun display-buffer-alist-match-mode (major-modes)
+  (lambda (buffer-name action)
+    (with-current-buffer buffer-name (apply #'derived-mode-p major-modes))))
+
+(setq display-buffer-alist
+      `((,(display-buffer-alist-match-mode '(magit-mode))
+         (display-buffer-reuse-mode-window)
+         (mode magit-mode))
+        (,(lambda (buffer-name action) t)
+         (display-buffer-in-previous-window
+          display-buffer-reuse-window))))
 
 (use-package ace-window
   :bind
@@ -137,16 +150,33 @@
 (use-package corfu
   :custom
   (corfu-auto t)
-  :bind
-  (:map corfu-map
-        ("RET" . nil))
   :init
+  (defun corfu-move-to-minibuffer ()
+    (interactive)
+    (pcase completion-in-region--data
+      (`(,beg ,end ,table ,pred ,extras)
+       (let ((completion-extra-properties extras)
+             completion-cycle-threshold completion-cycling)
+         (consult-completion-in-region beg end table pred)))))
+
+  (setq corfu-map
+        (define-keymap
+          "<remap> <completion-at-point>" #'corfu-complete
+          ;; XXX [tab] is bound because of org-mode and orgtbl-mode.
+          ;; The binding should be removed from org-mode-map.
+          "<tab>" #'corfu-complete
+          "M-n" #'corfu-next
+          "M-p" #'corfu-previous
+          "C-g" #'corfu-quit
+          "TAB" #'corfu-complete
+          "M-SPC" #'corfu-move-to-minibuffer))
   (global-corfu-mode)
+  (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
+
   (defun corfu-enable-in-minibuffer ()
     "Enable Corfu in the minibuffer if `completion-at-point' is bound."
     (when (where-is-internal #'completion-at-point (list (current-local-map)))
-      ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
-      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
+      (setq-local corfu-echo-delay nil
                   corfu-popupinfo-delay nil)
       (corfu-mode 1)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer))
@@ -185,14 +215,12 @@
   :init
   (vertico-mode)
   (vertico-multiform-mode)
-  (setq vertico-count 30))
+  (setq vertico-count (/ (window-total-height) 3)))
 
 (use-package which-key
   :diminish which-key-mode
   :custom
-  (which-key-show-early-on-C-h t)
-  (which-key-idle-delay 10000)
-  (which-key-idle-secondary-delay 0.05)
+  (which-key-idle-delay 0.5)
   :config
   (which-key-mode))
 
@@ -224,6 +252,7 @@
  ("C-x C-b" . ibuffer)
  ("C-c i" . adjust-indenting)
  ("C-c o" . move-buffer-other-window)
+ ("C-c q" . quit-window)
  ("C-." . eglot-code-action-quickfix))
 
 ;; Emacs behavior
@@ -255,6 +284,7 @@
 (add-to-list 'electric-indent-functions-without-reindent 'indent-basic)
 
 (setq-default indent-tabs-mode nil)
+(setq-default show-trailing-whitespace t)
 (setq-default tab-width 4)
 (setq-default word-wrap t)
 
@@ -296,8 +326,14 @@
 ;; Apps
 
 (use-package magit
+  :bind
+  (:map magit-file-section-map
+   ("RET" . magit-diff-visit-file-other-window)
+   :map magit-hunk-section-map
+   ("RET" . magit-diff-visit-file-other-window))
   :init
   (setq magit-diff-refine-hunk 'all)
+  (setq magit-display-buffer-function #'display-buffer)
   (setq magit-section-initial-visibility-alist
         '((stashes . hide)
 	      (file . hide))))
