@@ -378,7 +378,12 @@
 (defun go-config ()
   (setq-local go-ts-mode-indent-offset 4)
   (setq-local indent-tabs-mode t)
-  (setq-local tab-width 4))
+  (setq-local tab-width 4)
+  (defun my-eglot-organize-imports () (interactive)
+	 (eglot-code-actions nil nil "source.organizeImports" t))
+  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+  (add-hook 'before-save-hook 'eglot-format-buffer nil t))
+(add-hook 'go-ts-mode-hook 'eglot-ensure)
 (add-hook 'go-ts-mode-hook 'go-config)
 
 (with-eval-after-load 'js
