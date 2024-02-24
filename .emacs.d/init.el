@@ -32,6 +32,7 @@
 (savehist-mode t)
 (set-fringe-mode 12)
 (show-paren-mode 1)
+(windmove-default-keybindings)
 (winner-mode t)
 
 (setq help-window-select t)
@@ -45,22 +46,31 @@
 (setq switch-to-buffer-in-dedicated-window 'pop)
 (setq switch-to-buffer-obey-display-actions t)
 (setq use-short-answers t)
+(setq windmove-allow-all-windows t)
 
 (defun display-buffer-alist-match-mode (major-modes)
   (lambda (buffer-name action)
     (with-current-buffer buffer-name (apply #'derived-mode-p major-modes))))
 
-(setq display-buffer-alist
-      `((,(display-buffer-alist-match-mode '(magit-mode))
-         (display-buffer-reuse-mode-window)
-         (mode magit-mode))
-        (,(lambda (buffer-name action) t)
-         (display-buffer-in-previous-window
-          display-buffer-reuse-window))))
+(defun my-display-buffer-alist ()
+  `((,(display-buffer-alist-match-mode '(dape-info-parent-mode))
+     (display-buffer-in-side-window)
+     (side . left)
+     (window-parameters
+      (no-delete-other-windows . t)
+      (no-other-window . t)))
+    ("\\*dape.+"
+     (display-buffer-in-previous-window
+      display-buffer-reuse-window
+      display-buffer-use-some-window))
+    (,(display-buffer-alist-match-mode '(magit-mode))
+     (display-buffer-reuse-mode-window)
+     (mode magit-mode))
+    (,(lambda (buffer-name action) t)
+     (display-buffer-in-previous-window
+      display-buffer-reuse-window))))
 
-(use-package ace-window
-  :bind
-  (("M-o" . ace-window)))
+(setq display-buffer-alist (my-display-buffer-alist))
 
 (use-package avy
   :bind
@@ -244,7 +254,6 @@
    (t (message "Can't adjust indent in this major mode"))))
 
 (bind-keys*
- ("M-o" . ace-window)
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
@@ -284,7 +293,6 @@
 (add-to-list 'electric-indent-functions-without-reindent 'indent-basic)
 
 (setq-default indent-tabs-mode nil)
-(setq-default show-trailing-whitespace t)
 (setq-default tab-width 4)
 (setq-default word-wrap t)
 
@@ -356,6 +364,11 @@
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
 ;; Programming
+
+(with-eval-after-load 'prog-mode
+  (defun prog-mode-config ()
+    (setq-local show-trailing-whitespace t))
+  (add-hook 'prog-mode-hook #'prog-mode-config))
 
 ;; TODO: c hungry delete and auto newline mode
 ;; c context line break and open line
@@ -430,11 +443,18 @@
 
 (use-package dape
   :init
-  (setq dape-buffer-window-arrangement 'gud)
+  (setq dape-key-prefix "\C-cd")
   :config
-  (add-hook 'dape-on-start-hooks
-            (defun dape--save-on-start ()
-              (save-some-buffers t t))))
+  (remove-hook 'dape-on-start-hooks 'dape-info)
+  (remove-hook 'dape-on-start-hooks 'dape-repl)
+  (defun dape--save-on-start ()
+    (save-some-buffers t t))
+  (add-hook 'dape-on-start-hooks 'dape--save-on-start)
+  (add-hook 'dape-on-stopped-hooks 'dape-info)
+  (defun dape--fix-display-buffer (orig-fun &rest args)
+    (let ((display-buffer-alist (my-display-buffer-alist)))
+      (apply orig-fun args)))
+  (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
 (defun web-mode-setup ()
   (setq-local electric-indent-inhibit t)
