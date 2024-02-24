@@ -185,7 +185,7 @@
 
 (use-package ef-themes
   :config
-  (load-theme 'ef-winter t))
+  (load-theme 'ef-duo-dark t))
 
 (use-package marginalia
   :init
