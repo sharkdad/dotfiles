@@ -35,6 +35,7 @@
 (windmove-default-keybindings)
 (winner-mode t)
 
+(setq eldoc-echo-area-prefer-doc-buffer t)
 (setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
@@ -42,35 +43,64 @@
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 200)
 (setq shell-command-prompt-show-cwd t)
-(setq split-height-threshold nil)
 (setq switch-to-buffer-in-dedicated-window 'pop)
 (setq switch-to-buffer-obey-display-actions t)
 (setq use-short-answers t)
 (setq windmove-allow-all-windows t)
+(setq window-sides-vertical t)
 
 (defun display-buffer-alist-match-mode (major-modes)
   (lambda (buffer-name action)
     (with-current-buffer buffer-name (apply #'derived-mode-p major-modes))))
 
 (defun my-display-buffer-alist ()
-  `((,(display-buffer-alist-match-mode '(dape-info-parent-mode))
+  `(("^\\*\\(help\\|info\\)"
+     (display-buffer-in-side-window)
+     (side . left)
+     (window-width . 0.33)
+     (window-parameters
+      (no-delete-other-windows . t)
+      (no-other-window . t)))
+    ("^\\*eldoc"
+     (display-buffer-in-side-window)
+     (side . left)
+     (slot . 1)
+     (window-width . 0.33)
+     (window-height . 0.33)
+     (window-parameters
+      (no-delete-other-windows . t)
+      (no-other-window . t)))
+    (,(display-buffer-alist-match-mode '(comint-mode term-mode))
+     (display-buffer-in-side-window)
+     (side . bottom)
+     (window-height . 0.33)
+     (window-parameters
+      (no-delete-other-windows . t)
+      (no-other-window . t)))
+    ("shell\\*$"
+     (display-buffer-in-side-window)
+     (side . bottom)
+     (window-height . 0.33)
+     (window-parameters
+      (no-delete-other-windows . t)
+      (no-other-window . t)))
+    (,(display-buffer-alist-match-mode '(dape-info-parent-mode))
      (display-buffer-in-side-window)
      (side . left)
      (window-parameters
       (no-delete-other-windows . t)
       (no-other-window . t)))
-    ("\\*dape.+"
-     (display-buffer-in-previous-window
-      display-buffer-reuse-window
-      display-buffer-use-some-window))
     (,(display-buffer-alist-match-mode '(magit-mode))
      (display-buffer-reuse-mode-window)
-     (mode magit-mode))
-    (,(lambda (buffer-name action) t)
-     (display-buffer-in-previous-window
-      display-buffer-reuse-window))))
+     (mode magit-mode))))
 
 (setq display-buffer-alist (my-display-buffer-alist))
+(setq display-buffer-fallback-action
+      '((display-buffer-reuse-window
+         display-buffer-in-previous-window
+         display-buffer-same-window
+         display-buffer-use-some-window
+         display-buffer-pop-up-window)))
 
 (use-package avy
   :bind
@@ -84,7 +114,7 @@
   (([remap Info-search] . consult-info)
    ("C-c h" . consult-history)
    ("C-x M-:" . consult-complex-command)
-   ("C-x b" . consult-buffer)
+   ("C-x b" . consult-buffer-pop-to-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
    ("C-x 5 b" . consult-buffer-other-frame)
    ("C-x r b" . consult-bookmark)
@@ -143,6 +173,10 @@
   (setq read-extended-command-predicate
         #'command-completion-default-include-p)
   :config
+  (defun consult-buffer-pop-to-buffer ()
+    (interactive)
+    (let ((consult--buffer-display #'pop-to-buffer))
+      (consult-buffer)))
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
@@ -234,14 +268,9 @@
   :config
   (which-key-mode))
 
-(defun move-buffer-other-window ()
-  "Put the buffer from the selected window in other window"
+(defun display-selected-buffer-other-window ()
   (interactive)
-  (let* ((buffer (window-buffer))
-     (curr-window (selected-window)))
-    (quit-window)
-    (select-window curr-window)
-    (switch-to-buffer-other-window buffer)))
+  (display-buffer (window-buffer) t))
 
 (defun adjust-indenting ()
   "Adjust indenting based on major mode"
@@ -260,7 +289,7 @@
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer)
  ("C-c i" . adjust-indenting)
- ("C-c o" . move-buffer-other-window)
+ ("C-c o" . display-selected-buffer-other-window)
  ("C-c q" . quit-window)
  ("C-." . eglot-code-action-quickfix))
 
