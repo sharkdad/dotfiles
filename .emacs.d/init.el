@@ -43,64 +43,45 @@
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 200)
 (setq shell-command-prompt-show-cwd t)
-(setq switch-to-buffer-in-dedicated-window 'pop)
-(setq switch-to-buffer-obey-display-actions t)
+(setq switch-to-buffer-in-dedicated-window 't)
+(setq tab-bar-close-button-show nil)
+(setq tab-bar-new-button-show nil)
+(setq tab-bar-show 1)
 (setq use-short-answers t)
 (setq windmove-allow-all-windows t)
 (setq window-sides-vertical t)
 
-(defun display-buffer-alist-match-mode (major-modes)
-  (lambda (buffer-name action)
-    (with-current-buffer buffer-name (apply #'derived-mode-p major-modes))))
+(defun side-window-params ()
+  '(window-parameters
+    (no-delete-other-windows . t)
+    (no-other-window . t)))
 
-(defun my-display-buffer-alist ()
-  `(("^\\*\\(help\\|info\\)"
-     (display-buffer-in-side-window)
-     (side . left)
-     (window-width . 0.33)
-     (window-parameters
-      (no-delete-other-windows . t)
-      (no-other-window . t)))
-    ("^\\*eldoc"
-     (display-buffer-in-side-window)
-     (side . left)
-     (slot . 1)
-     (window-width . 0.33)
-     (window-height . 0.33)
-     (window-parameters
-      (no-delete-other-windows . t)
-      (no-other-window . t)))
-    (,(display-buffer-alist-match-mode '(comint-mode term-mode))
-     (display-buffer-in-side-window)
-     (side . bottom)
-     (window-height . 0.33)
-     (window-parameters
-      (no-delete-other-windows . t)
-      (no-other-window . t)))
-    ("shell\\*$"
-     (display-buffer-in-side-window)
-     (side . bottom)
-     (window-height . 0.33)
-     (window-parameters
-      (no-delete-other-windows . t)
-      (no-other-window . t)))
-    (,(display-buffer-alist-match-mode '(dape-info-parent-mode))
-     (display-buffer-in-side-window)
-     (side . left)
-     (window-parameters
-      (no-delete-other-windows . t)
-      (no-other-window . t)))
-    (,(display-buffer-alist-match-mode '(magit-mode))
-     (display-buffer-reuse-mode-window)
-     (mode magit-mode))))
-
-(setq display-buffer-alist (my-display-buffer-alist))
-(setq display-buffer-fallback-action
-      '((display-buffer-reuse-window
-         display-buffer-in-previous-window
-         display-buffer-same-window
-         display-buffer-use-some-window
-         display-buffer-pop-up-window)))
+(setq display-buffer-alist
+      `(("^\\*\\(help\\|info\\)"
+         (display-buffer-in-side-window)
+         ,(side-window-params)
+         (side . left)
+         (window-width . 0.33))
+        ("^\\*eldoc"
+         (display-buffer-in-side-window)
+         ,(side-window-params)
+         (side . left)
+         (slot . 1)
+         (window-width . 0.33)
+         (window-height . 0.33))
+        ((or . ((derived-mode . comint-mode)
+                (derived-mode . term-mode)
+                "shell\\*$"
+                "^\\*trace"))
+         (display-buffer-in-side-window)
+         ,(side-window-params)
+         (side . bottom)
+         (window-height . 0.33))
+        ((derived-mode . dape-info-parent-mode)
+         (display-buffer-in-side-window)
+         ,(side-window-params)
+         (side . right))))
+(defvar my-display-buffer-alist display-buffer-alist)
 
 (use-package avy
   :bind
@@ -122,7 +103,6 @@
    ("M-#" . consult-register-load)
    ("M-'" . consult-register-store)
    ("C-M-#" . consult-register)
-   ("M-`" . consult-buffer)
    ("M-y" . consult-yank-pop)
    ("M-g e" . consult-compile-error)
    ("M-g f" . consult-flymake)
@@ -173,9 +153,17 @@
   (setq read-extended-command-predicate
         #'command-completion-default-include-p)
   :config
-  (defun consult-buffer-pop-to-buffer ()
-    (interactive)
-    (let ((consult--buffer-display #'pop-to-buffer))
+  (defun my-consult-buffer-display (buffer &optional norecord)
+    (pop-to-buffer buffer
+                   '((display-buffer-reuse-window
+                      display-buffer-in-previous-window
+                      display-buffer-same-window
+                      display-buffer-use-some-window
+                      display-buffer-pop-up-window))
+                   norecord))
+  (defun consult-buffer-pop-to-buffer (arg)
+    (interactive "P")
+    (let ((consult--buffer-display (if arg #'switch-to-buffer #'my-consult-buffer-display)))
       (consult-buffer)))
   ;; For some commands and buffer sources it is useful to configure the
   ;; :preview-key on a per-command basis using the `consult-customize' macro.
@@ -266,6 +254,7 @@
   :custom
   (which-key-idle-delay 0.5)
   :config
+  (which-key-setup-minibuffer)
   (which-key-mode))
 
 (defun display-selected-buffer-other-window ()
@@ -287,6 +276,7 @@
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
  ("C-x k" . kill-current-buffer)
+ ("C-x !" . delete-other-windows-vertically)
  ("C-x C-b" . ibuffer)
  ("C-c i" . adjust-indenting)
  ("C-c o" . display-selected-buffer-other-window)
@@ -370,7 +360,6 @@
    ("RET" . magit-diff-visit-file-other-window))
   :init
   (setq magit-diff-refine-hunk 'all)
-  (setq magit-display-buffer-function #'display-buffer)
   (setq magit-section-initial-visibility-alist
         '((stashes . hide)
 	      (file . hide))))
@@ -481,7 +470,7 @@
   (add-hook 'dape-on-start-hooks 'dape--save-on-start)
   (add-hook 'dape-on-stopped-hooks 'dape-info)
   (defun dape--fix-display-buffer (orig-fun &rest args)
-    (let ((display-buffer-alist (my-display-buffer-alist)))
+    (let ((display-buffer-alist my-display-buffer-alist))
       (apply orig-fun args)))
   (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
