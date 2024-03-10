@@ -43,45 +43,36 @@
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 200)
 (setq shell-command-prompt-show-cwd t)
-(setq switch-to-buffer-in-dedicated-window 't)
+(setq switch-to-buffer-in-dedicated-window 'pop)
+(setq switch-to-buffer-obey-display-actions t)
 (setq tab-bar-close-button-show nil)
 (setq tab-bar-new-button-show nil)
 (setq tab-bar-show 1)
 (setq use-short-answers t)
 (setq windmove-allow-all-windows t)
-(setq window-sides-vertical t)
-
-(defun side-window-params ()
-  '(window-parameters
-    (no-delete-other-windows . t)
-    (no-other-window . t)))
 
 (setq display-buffer-alist
-      `(("^\\*\\(help\\|info\\)"
+      `(("^\\(*help\\|*eldoc\\|*info\\|*Messages\\|*Warnings\\|COMMIT_EDITMSG\\)"
          (display-buffer-in-side-window)
-         ,(side-window-params)
          (side . left)
-         (window-width . 0.33))
-        ("^\\*eldoc"
-         (display-buffer-in-side-window)
-         ,(side-window-params)
-         (side . left)
-         (slot . 1)
-         (window-width . 0.33)
-         (window-height . 0.33))
+         (window-width . 80))
         ((or . ((derived-mode . comint-mode)
                 (derived-mode . term-mode)
                 "shell\\*$"
                 "^\\*trace"))
          (display-buffer-in-side-window)
-         ,(side-window-params)
-         (side . bottom)
-         (window-height . 0.33))
+         (window-height . 0.5)
+         (side . top))
         ((derived-mode . dape-info-parent-mode)
          (display-buffer-in-side-window)
-         ,(side-window-params)
          (side . right))))
 (defvar my-display-buffer-alist display-buffer-alist)
+
+(setq display-buffer-base-action
+      '((display-buffer-reuse-window
+         display-buffer-in-previous-window
+         display-buffer-same-window
+         display-buffer-use-some-window)))
 
 (use-package avy
   :bind
@@ -95,7 +86,7 @@
   (([remap Info-search] . consult-info)
    ("C-c h" . consult-history)
    ("C-x M-:" . consult-complex-command)
-   ("C-x b" . consult-buffer-pop-to-buffer)
+   ("C-x b" . consult-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
    ("C-x 5 b" . consult-buffer-other-frame)
    ("C-x r b" . consult-bookmark)
