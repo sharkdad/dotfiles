@@ -1,13 +1,8 @@
 ;; -*- lexical-binding: t; -*-
 
-;; Font
-
-(let* ((host (downcase (system-name)))
-       (font-size
-        (pcase host
-          ("cerberus" "13")
-          ("amnesia" "9"))))
-  (set-frame-font (concat "Cascadia Mono-" font-size) nil t))
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(when (file-exists-p custom-file)
+  (load custom-file))
 
 ;; Package setup
 
@@ -32,7 +27,6 @@
 (savehist-mode t)
 (set-fringe-mode 12)
 (show-paren-mode 1)
-(windmove-default-keybindings)
 (winner-mode t)
 
 (setq eldoc-echo-area-prefer-doc-buffer t)
@@ -41,45 +35,35 @@
 (setq initial-buffer-choice 'recover-session)
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
-(setq recentf-max-saved-items 200)
+(setq recentf-max-saved-items 500)
 (setq shell-command-prompt-show-cwd t)
-(setq switch-to-buffer-in-dedicated-window 'pop)
-(setq switch-to-buffer-obey-display-actions t)
 (setq tab-bar-close-button-show nil)
 (setq tab-bar-new-button-show nil)
 (setq tab-bar-show 1)
 (setq use-short-answers t)
-(setq windmove-allow-all-windows t)
 
-(setq display-buffer-alist
-      `(("^\\(*help\\|*eldoc\\|*info\\|*Messages\\|*Warnings\\|COMMIT_EDITMSG\\)"
-         (display-buffer-in-side-window)
-         (side . left)
-         (window-width . 80))
-        ((or . ((derived-mode . comint-mode)
-                (derived-mode . term-mode)
-                "shell\\*$"
-                "^\\*trace"))
-         (display-buffer-in-side-window)
-         (window-height . 0.5)
-         (side . top))
-        ((derived-mode . dape-info-parent-mode)
-         (display-buffer-in-side-window)
-         (side . right))))
-(defvar my-display-buffer-alist display-buffer-alist)
+(use-package ace-window
+  :bind
+  (("C-c o" . ace-move-window)
+   ("C-c w" . ace-window-dispatch)
+   ("C-x o" . ace-window))
+  :config
+  (defun ace-move-window ()
+    "Ace move window."
+    (interactive)
+    (aw-select " Ace - Move Window"
+               #'aw-move-window))
 
-(setq display-buffer-base-action
-      '((display-buffer-reuse-window
-         display-buffer-in-previous-window
-         display-buffer-same-window
-         display-buffer-use-some-window)))
+  (defun ace-window-dispatch (arg)
+    "Ace window dispatch."
+    (interactive "p")
+    (let ((aw-dispatch-always t))
+      (ace-window arg))))
 
 (use-package avy
   :bind
   (("C-;" . avy-goto-line)
-   ("C-'" . avy-goto-char-2)
-   ("M-g g" . avy-goto-line)
-   ("M-g M-g" . avy-goto-line)))
+   ("C-'" . avy-goto-char-2)))
 
 (use-package consult
   :bind
@@ -97,6 +81,8 @@
    ("M-y" . consult-yank-pop)
    ("M-g e" . consult-compile-error)
    ("M-g f" . consult-flymake)
+   ("M-g g" . consult-goto-line)
+   ("M-g M-g" . consult-goto-line)
    ("M-g o" . consult-outline)
    ("M-g m" . consult-mark)
    ("M-g k" . consult-global-mark)
@@ -123,51 +109,30 @@
    ("M-s" . consult-history)
    ("M-r" . consult-history))
   :init
-  ;; Optionally configure the register formatting. This improves the register
-  ;; preview for `consult-register', `consult-register-load',
-  ;; `consult-register-store' and the Emacs built-ins.
   (setq register-preview-delay 0.5
         register-preview-function #'consult-register-format)
-  ;; Optionally tweak the register preview window.
-  ;; This adds thin lines, sorting and hides the mode line of the window.
+
   (advice-add #'register-preview :override #'consult-register-window)
-  ;; Use Consult to select xref locations with preview
+
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
-  ;; Allow using minibuffer when in minibuffer
+
   (setq enable-recursive-minibuffers t)
-  ;; Do not allow the cursor in the minibuffer prompt
   (setq minibuffer-prompt-properties
         '(read-only t cursor-intangible t face minibuffer-prompt))
   (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-  ;; Hide commands in M-x which do not work in the current mode.
+
   (setq read-extended-command-predicate
         #'command-completion-default-include-p)
   :config
-  (defun my-consult-buffer-display (buffer &optional norecord)
-    (pop-to-buffer buffer
-                   '((display-buffer-reuse-window
-                      display-buffer-in-previous-window
-                      display-buffer-same-window
-                      display-buffer-use-some-window
-                      display-buffer-pop-up-window))
-                   norecord))
-  (defun consult-buffer-pop-to-buffer (arg)
-    (interactive "P")
-    (let ((consult--buffer-display (if arg #'switch-to-buffer #'my-consult-buffer-display)))
-      (consult-buffer)))
-  ;; For some commands and buffer sources it is useful to configure the
-  ;; :preview-key on a per-command basis using the `consult-customize' macro.
   (consult-customize
-   consult-theme :preview-key '(:debounce 0.2 any)
+   consult-theme
+   :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
-   ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
-  ;; Optionally configure the narrowing key.
-  ;; Both < and C-+ work reasonably well.
   (setq consult-narrow-key "<"))
 
 (use-package corfu
@@ -204,11 +169,11 @@
       (corfu-mode 1)))
   (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer))
 
-(use-package diminish)
+(use-package doom-modeline
+  :init
+  (doom-modeline-mode 1))
 
-(use-package ef-themes
-  :config
-  (load-theme 'ef-duo-dark t))
+(use-package ef-themes)
 
 (use-package marginalia
   :init
@@ -217,6 +182,10 @@
 (use-package mode-line-bell
   :config
   (mode-line-bell-mode))
+
+(use-package mood-line
+  :config
+  (mood-line-mode))
 
 (use-package orderless
   :custom
@@ -241,37 +210,18 @@
   (setq vertico-count (/ (window-total-height) 3)))
 
 (use-package which-key
-  :diminish which-key-mode
   :custom
   (which-key-idle-delay 0.5)
   :config
   (which-key-setup-minibuffer)
   (which-key-mode))
 
-(defun display-selected-buffer-other-window ()
-  (interactive)
-  (display-buffer (window-buffer) t))
-
-(defun adjust-indenting ()
-  "Adjust indenting based on major mode"
-  (interactive)
-  (cond
-   ((derived-mode-p 'typescript-ts-mode)
-    (setq-local typescript-ts-mode-indent-offset 4))
-   ((derived-mode-p 'js-ts-mode)
-    (setq-local js-indent-level 2))
-   (t (message "Can't adjust indent in this major mode"))))
-
 (bind-keys*
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
  ("C-x k" . kill-current-buffer)
- ("C-x !" . delete-other-windows-vertically)
  ("C-x C-b" . ibuffer)
- ("C-c i" . adjust-indenting)
- ("C-c o" . display-selected-buffer-other-window)
- ("C-c q" . quit-window)
  ("C-." . eglot-code-action-quickfix))
 
 ;; Emacs behavior
@@ -279,7 +229,6 @@
 (setq auto-save-timeout 5)
 (setq bookmark-save-flag 1)
 (setq completion-ignore-case t)
-(setq custom-file (make-temp-file "emacs-custom"))
 (setq interpreter-mode-alist nil)
 (setq kill-buffer-delete-auto-save-files t)
 (setq make-backup-files nil)
@@ -444,7 +393,6 @@
 
 (use-package squirrel-mode
   :config
-  ;; (add-to-list 'auto-mode-alist '("\\.nut\\'" . squirrel-mode))
   (defun squirrel-config ()
     (setq-local indent-tabs-mode t)
     (setq-local tab-width 4))
@@ -457,20 +405,17 @@
   (remove-hook 'dape-on-start-hooks 'dape-info)
   (remove-hook 'dape-on-start-hooks 'dape-repl)
   (defun dape--save-on-start ()
-    (save-some-buffers t t))
+    (save-some-buffers))
   (add-hook 'dape-on-start-hooks 'dape--save-on-start)
   (add-hook 'dape-on-stopped-hooks 'dape-info)
   (defun dape--fix-display-buffer (orig-fun &rest args)
-    (let ((display-buffer-alist my-display-buffer-alist))
+    (let ((display-buffer-alist
+           `(((derived-mode . dape-info-parent-mode)
+              (display-buffer-in-side-window)
+              (side . top)))))
       (apply orig-fun args)))
   (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
-(defun web-mode-setup ()
-  (setq-local electric-indent-inhibit t)
-  (setq-local indent-region-function #'indent-region-line-by-line)
-  (setq-local tab-width 2)
-  (electric-pair-local-mode -1)
-  (web-mode-set-engine "django"))
 (use-package web-mode
   :hook html-mode
   :hook (web-mode . web-mode-setup)
@@ -478,4 +423,11 @@
   (web-mode-code-indent-offset 2)
   (web-mode-css-indent-offset 2)
   (web-mode-markup-comment-indent-offset 2)
-  (web-mode-markup-indent-offset 2))
+  (web-mode-markup-indent-offset 2)
+  :config
+  (defun web-mode-setup ()
+    (setq-local electric-indent-inhibit t)
+    (setq-local indent-region-function #'indent-region-line-by-line)
+    (setq-local tab-width 2)
+    (electric-pair-local-mode -1)
+    (web-mode-set-engine "django")))
