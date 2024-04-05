@@ -42,6 +42,8 @@
 (setq tab-bar-show 1)
 (setq use-short-answers t)
 
+(setq-default comint-scroll-to-bottom-on-input t)
+
 (use-package ace-window
   :bind
   (("C-c o" . ace-move-window)
@@ -53,7 +55,6 @@
     (interactive)
     (aw-select " Ace - Move Window"
                #'aw-move-window))
-
   (defun ace-window-dispatch (arg)
     "Ace window dispatch."
     (interactive "p")
