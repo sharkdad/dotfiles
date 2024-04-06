@@ -426,7 +426,9 @@
     (let ((display-buffer-alist
            `(((derived-mode . dape-info-parent-mode)
               (display-buffer-in-side-window)
-              (side . bottom)))))
+              (side . bottom)
+              (window-parameters
+               (no-other-window . t))))))
       (apply orig-fun args)))
   (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
