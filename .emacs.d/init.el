@@ -30,6 +30,7 @@
 (winner-mode t)
 
 (setq eldoc-echo-area-prefer-doc-buffer t)
+(setq even-window-sizes nil)
 (setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
@@ -37,6 +38,7 @@
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 500)
 (setq shell-command-prompt-show-cwd t)
+(setq split-window-preferred-function #'shark-split-window-only-once)
 (setq tab-bar-close-button-show nil)
 (setq tab-bar-new-button-show nil)
 (setq tab-bar-show 1)
@@ -44,22 +46,26 @@
 
 (setq-default comint-scroll-to-bottom-on-input t)
 
+(defun shark-split-window-only-once (&optional window return-other)
+  (let* ((window (or window (selected-window)))
+         (other (next-window window 'nomini)))
+    (cond ((eq window other) (split-window-sensibly window))
+          (return-other other))))
+
 (use-package ace-window
   :bind
-  (("C-c o" . ace-move-window)
-   ("C-c w" . ace-window-dispatch)
-   ("C-x o" . ace-window))
+  (("C-c o" . shark-move-window)
+   ("C-c w" . ace-window)
+   :repeat-map shark-move-window-repeat-map
+   ("o" . shark-move-window))
+  :custom
+  (aw-dispatch-always t)
   :config
-  (defun ace-move-window ()
-    "Ace move window."
+  (defun shark-move-window ()
+    "Ace move to other window, creating if necessary."
     (interactive)
-    (aw-select " Ace - Move Window"
-               #'aw-move-window))
-  (defun ace-window-dispatch (arg)
-    "Ace window dispatch."
-    (interactive "p")
-    (let ((aw-dispatch-always t))
-      (ace-window arg))))
+    (aw-move-window (shark-split-window-only-once (selected-window) t)))
+  (put 'shark-move-window 'repeat-map 'shark-move-window-repeat-map))
 
 (use-package avy
   :bind
@@ -217,7 +223,7 @@
   (which-key-setup-minibuffer)
   (which-key-mode))
 
-(bind-keys*
+(bind-keys
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
