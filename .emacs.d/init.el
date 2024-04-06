@@ -30,6 +30,7 @@
 (winner-mode t)
 
 (setq eldoc-echo-area-prefer-doc-buffer t)
+(setq eldoc-echo-area-use-multiline-p nil)
 (setq even-window-sizes nil)
 (setq help-window-select t)
 (setq inhibit-startup-message t)
@@ -43,6 +44,7 @@
 (setq tab-bar-new-button-show nil)
 (setq tab-bar-show 1)
 (setq use-short-answers t)
+(setq warning-minimum-level :error)
 
 (setq-default comint-scroll-to-bottom-on-input t)
 
@@ -62,9 +64,14 @@
   (aw-dispatch-always t)
   :config
   (defun shark-move-window ()
-    "Ace move to other window, creating if necessary."
+    "Move buffer to other window, creating if necessary."
     (interactive)
-    (aw-move-window (shark-split-window-only-once (selected-window) t)))
+    (let* ((window (selected-window))
+           (buffer (current-buffer))
+           (other (shark-split-window-only-once window t)))
+      (quit-window)
+      (aw-switch-to-window other)
+      (switch-to-buffer buffer)))
   (put 'shark-move-window 'repeat-map 'shark-move-window-repeat-map))
 
 (use-package avy
@@ -189,10 +196,6 @@
 (use-package mode-line-bell
   :config
   (mode-line-bell-mode))
-
-(use-package mood-line
-  :config
-  (mood-line-mode))
 
 (use-package orderless
   :custom
@@ -353,16 +356,17 @@
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode . ("glsl_analyzer"))))
 
-(defun go-config ()
-  (setq-local go-ts-mode-indent-offset 4)
-  (setq-local indent-tabs-mode t)
-  (setq-local tab-width 4)
-  (defun my-eglot-organize-imports () (interactive)
-	 (eglot-code-actions nil nil "source.organizeImports" t))
-  (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
-  (add-hook 'before-save-hook 'eglot-format-buffer nil t))
-(add-hook 'go-ts-mode-hook 'eglot-ensure)
-(add-hook 'go-ts-mode-hook 'go-config)
+(with-eval-after-load 'go-ts-mode
+  (defun go-config ()
+    (setq-local go-ts-mode-indent-offset 4)
+    (setq-local indent-tabs-mode t)
+    (setq-local tab-width 4)
+    (defun my-eglot-organize-imports () (interactive)
+	       (eglot-code-actions nil nil "source.organizeImports" t))
+    (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
+    (add-hook 'before-save-hook 'eglot-format-buffer nil t))
+  (add-hook 'go-ts-mode-hook 'eglot-ensure)
+  (add-hook 'go-ts-mode-hook 'go-config))
 
 (with-eval-after-load 'js
   (setq interpreter-mode-alist nil))
@@ -370,7 +374,8 @@
 (use-package markdown-mode)
 
 (with-eval-after-load 'python
-  (setq interpreter-mode-alist nil))
+  (setq interpreter-mode-alist nil)
+  (add-hook 'python-base-mode-hook 'eglot-ensure))
 
 (use-package treesit-auto
   :custom
@@ -408,6 +413,8 @@
 (use-package dape
   :init
   (setq dape-key-prefix "\C-cd")
+  :custom
+  (dape-info-hide-mode-line nil)
   :config
   (remove-hook 'dape-on-start-hooks 'dape-info)
   (remove-hook 'dape-on-start-hooks 'dape-repl)
@@ -419,7 +426,7 @@
     (let ((display-buffer-alist
            `(((derived-mode . dape-info-parent-mode)
               (display-buffer-in-side-window)
-              (side . top)))))
+              (side . bottom)))))
       (apply orig-fun args)))
   (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
