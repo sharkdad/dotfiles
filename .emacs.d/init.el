@@ -331,6 +331,9 @@
   (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$"))
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
+(with-eval-after-load 'org
+  (setq org-log-done 'time))
+
 ;; Programming
 
 (with-eval-after-load 'prog-mode
