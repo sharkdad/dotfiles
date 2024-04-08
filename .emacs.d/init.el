@@ -247,9 +247,9 @@
 (with-eval-after-load 'project
   ;; TODO: still filter these projects based on gitignore
   (setq project-vc-extra-root-markers
-	'("package.json"
-	  "pyproject.toml"
-	  "requirements.txt")))
+	    '("package.json"
+	      "pyproject.toml"
+	      "requirements.txt")))
 
 ;; Editing
 
@@ -305,9 +305,9 @@
 (use-package magit
   :bind
   (:map magit-file-section-map
-   ("RET" . magit-diff-visit-file-other-window)
-   :map magit-hunk-section-map
-   ("RET" . magit-diff-visit-file-other-window))
+        ("RET" . magit-diff-visit-file-other-window)
+        :map magit-hunk-section-map
+        ("RET" . magit-diff-visit-file-other-window))
   :init
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist
@@ -337,6 +337,22 @@
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time))
+
+(use-package org-roam
+  :init
+  (require 'org-roam-dailies)
+  :bind
+  (("C-c n f" . org-roam-node-find)
+   ("C-c n d" . org-roam-dailies-goto-today)
+   :map org-mode-map
+   ("C-c n i" . org-roam-node-insert)
+   ("C-c n t" . org-roam-tag-add)
+   ("C-c n a" . org-roam-alias-add)
+   ("C-c n l" . org-roam-buffer-toggle))
+  :custom
+  (org-roam-directory "~/sync/org/roam")
+  :config
+  (org-roam-db-autosync-mode))
 
 ;; Programming
 
