@@ -332,6 +332,10 @@
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
 (with-eval-after-load 'org
+  (setq org-agenda-dim-blocked-tasks 'invisible)
+  (setq org-agenda-files '("~/sync/org/"))
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time))
 
 ;; Programming
