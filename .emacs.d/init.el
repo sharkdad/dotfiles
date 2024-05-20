@@ -332,17 +332,27 @@
   (add-hook 'dired-mode-hook (lambda () (dired-omit-mode))))
 
 (with-eval-after-load 'org
+  (add-to-list 'org-modules 'org-habit t)
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/"))
+  (setq org-agenda-sorting-strategy
+        '((agenda habit-down time-up priority-down)
+          (todo priority-down)
+          (tags priority-down)
+          (search)))
+  (setq org-agenda-sticky t)
+  (setq org-agenda-window-setup 'current-window)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
-  (setq org-log-done 'time))
+  (setq org-log-done 'time)
+  (setq org-tag-alist '(("fun" . ?f))))
 
 (use-package org-roam
   :init
   (require 'org-roam-dailies)
   :bind
-  (("C-c n f" . org-roam-node-find)
+  (("C-c a"   . org-agenda)
+   ("C-c n f" . org-roam-node-find)
    ("C-c n d" . org-roam-dailies-goto-today)
    :map org-mode-map
    ("C-c n i" . org-roam-node-insert)
