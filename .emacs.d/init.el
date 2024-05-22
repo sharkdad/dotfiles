@@ -117,8 +117,6 @@
    ("M-s e" . consult-isearch-history)
    ("M-s l" . consult-line)
    ("M-s L" . consult-line-multi)
-   :map comint-mode-map
-   ("M-r" . consult-history)
    :map minibuffer-local-map
    ("M-s" . consult-history)
    ("M-r" . consult-history))
@@ -187,7 +185,9 @@
   :init
   (doom-modeline-mode 1))
 
-(use-package ef-themes)
+(use-package ef-themes
+  :config
+  (load-theme 'ef-duo-dark t))
 
 (use-package marginalia
   :init
@@ -348,8 +348,6 @@
   (setq org-tag-alist '(("fun" . ?f))))
 
 (use-package org-roam
-  :init
-  (require 'org-roam-dailies)
   :bind
   (("C-c a"   . org-agenda)
    ("C-c n f" . org-roam-node-find)
@@ -404,7 +402,8 @@
 (with-eval-after-load 'js
   (setq interpreter-mode-alist nil))
 
-(use-package markdown-mode)
+(use-package markdown-mode
+  :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
 (with-eval-after-load 'python
   (setq interpreter-mode-alist nil)
@@ -433,17 +432,21 @@
   (global-treesit-auto-mode))
 
 (use-package pet
-  :config
+  :commands pet-mode
+  :init
   (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 (use-package squirrel-mode
+  :mode "\\.nut\\'"
+  :hook (squirrel-mode . squirrel-config)
   :config
   (defun squirrel-config ()
     (setq-local indent-tabs-mode t)
-    (setq-local tab-width 4))
-  (add-hook 'squirrel-mode-hook 'squirrel-config))
+    (setq-local tab-width 4)))
 
 (use-package dape
+  :bind
+  (("C-c d d" . dape))
   :init
   (setq dape-key-prefix "\C-cd")
   :custom
