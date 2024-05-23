@@ -341,10 +341,13 @@
           (tags priority-down)
           (search)))
   (setq org-agenda-sticky t)
+  (setq org-agenda-todo-ignore-deadlines 'all)
+  (setq org-agenda-todo-ignore-scheduled 'all)
   (setq org-agenda-window-setup 'current-window)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time)
+  (setq org-refile-use-outline-path t)
   (setq org-tag-alist '(("fun" . ?f))))
 
 (use-package org-roam
