@@ -187,7 +187,7 @@
 
 (use-package ef-themes
   :config
-  (load-theme 'ef-duo-dark t))
+  (load-theme 'ef-dark t))
 
 (use-package marginalia
   :init
@@ -386,6 +386,7 @@
   (setq eglot-ignored-server-capabilities
 	'(:colorProvider
 	  :inlayHintProvider))
+  (setq eglot-report-progress nil)
   ;; TODO glsl_analyzer for c-mode glsl files
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode . ("glsl_analyzer"))))
