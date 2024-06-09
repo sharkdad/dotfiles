@@ -30,7 +30,6 @@
 (winner-mode t)
 
 (setq eldoc-echo-area-prefer-doc-buffer t)
-(setq eldoc-echo-area-use-multiline-p nil)
 (setq even-window-sizes nil)
 (setq help-window-select t)
 (setq inhibit-startup-message t)
@@ -188,6 +187,10 @@
 (use-package ef-themes
   :config
   (load-theme 'ef-dark t))
+
+(use-package eldoc-box
+  :init
+  (eldoc-box-hover-mode))
 
 (use-package marginalia
   :init
@@ -387,6 +390,7 @@
 	'(:colorProvider
 	  :inlayHintProvider))
   (setq eglot-report-progress nil)
+  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
   ;; TODO glsl_analyzer for c-mode glsl files
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode . ("glsl_analyzer"))))
