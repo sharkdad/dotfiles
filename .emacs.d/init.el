@@ -336,6 +336,10 @@
 
 (with-eval-after-load 'org
   (add-to-list 'org-modules 'org-habit t)
+  (setq org-agenda-custom-commands
+        '(("d" "dashboard"
+           ((tags-todo "CATEGORY=\"inbox\"")
+            (agenda "")))))
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/"))
   (setq org-agenda-sorting-strategy
@@ -343,7 +347,8 @@
           (todo priority-down)
           (tags priority-down)
           (search)))
-  (setq org-agenda-sticky t)
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-tags-todo-honor-ignore-options t)
   (setq org-agenda-todo-ignore-deadlines 'all)
   (setq org-agenda-todo-ignore-scheduled 'all)
   (setq org-agenda-window-setup 'current-window)
