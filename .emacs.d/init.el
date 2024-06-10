@@ -343,11 +343,6 @@
           ("f" "fun" tags-todo "fun")))
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/"))
-  (setq org-agenda-sorting-strategy
-        '((agenda habit-down time-up priority-down)
-          (todo priority-down)
-          (tags priority-down)
-          (search)))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-tags-todo-honor-ignore-options t)
   (setq org-agenda-todo-ignore-deadlines 'all)
@@ -356,7 +351,6 @@
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time)
-  (setq org-refile-use-outline-path t)
   (setq org-tag-alist '(("fun" . ?f))))
 
 (use-package org-roam
