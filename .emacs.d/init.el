@@ -339,7 +339,8 @@
   (setq org-agenda-custom-commands
         '(("d" "dashboard"
            ((tags-todo "CATEGORY=\"inbox\"")
-            (agenda "")))))
+            (agenda "")))
+          ("f" "fun" tags-todo "fun")))
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/"))
   (setq org-agenda-sorting-strategy
