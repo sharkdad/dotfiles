@@ -476,6 +476,9 @@
       (apply orig-fun args)))
   (advice-add 'dape--display-buffer :around #'dape--fix-display-buffer))
 
+(use-package tidal
+  :mode ("\\.tidal\\'" . tidal-mode))
+
 (use-package web-mode
   :hook html-mode
   :hook (web-mode . web-mode-setup)
