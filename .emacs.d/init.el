@@ -192,6 +192,28 @@
   :init
   (eldoc-box-hover-mode))
 
+(use-package embark
+  :bind
+  (("C-." . embark-act)         ;; pick some comfortable binding
+   ("M-." . embark-dwim)        ;; good alternative: M-.
+   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+
+  :init
+  ;; Show the Embark target at point via Eldoc. You may adjust the
+  ;; Eldoc strategy, if you want to see the documentation from
+  ;; multiple providers. Beware that using this can be a little
+  ;; jarring since the message shown in the minibuffer can be more
+  ;; than one line, causing the modeline to move up and down:
+
+  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
+  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
+
+  ;; Optionally replace the key help with a completing-read interface
+  (setq prefix-help-command #'embark-prefix-help-command))
+
+(use-package embark-consult
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+
 (use-package marginalia
   :init
   (marginalia-mode))
@@ -234,8 +256,7 @@
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
  ("C-x k" . kill-current-buffer)
- ("C-x C-b" . ibuffer)
- ("C-." . eglot-code-action-quickfix))
+ ("C-x C-b" . ibuffer))
 
 ;; Emacs behavior
 
