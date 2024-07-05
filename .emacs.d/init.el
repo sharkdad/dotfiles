@@ -362,6 +362,7 @@
         '(("d" "dashboard"
            ((tags-todo "CATEGORY=\"inbox\"")
             (agenda "")))
+          ("b" "backlog" tags-todo "-fun")
           ("f" "fun" tags-todo "fun")))
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/"))
