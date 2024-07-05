@@ -285,6 +285,7 @@
 
 (add-to-list 'electric-indent-functions-without-reindent 'indent-basic)
 
+(setq-default buffer-file-coding-system 'utf-8-unix)
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 (setq-default word-wrap t)
