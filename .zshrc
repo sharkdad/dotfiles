@@ -7,10 +7,10 @@ alias lla='ls -lA'
 
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
-PROMPT='%F{magenta}%~ %F{cyan}%% %f'
+PROMPT='%F{default}[%F{blue}%m%F{default}:%F{cyan}%20<..<%~%F{default}] %(?.%F{cyan}.%F{red})%# %F{default}%f'
 SAVEHIST=10000
 setopt inc_append_history
-setopt share_history
+setopt hist_ignore_dups
 unsetopt beep
 bindkey -e
 

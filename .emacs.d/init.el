@@ -45,6 +45,7 @@
 (setq use-short-answers t)
 (setq warning-minimum-level :error)
 
+(setq comint-prompt-read-only t)
 (setq-default comint-scroll-to-bottom-on-input t)
 
 (defun shark-split-window-only-once (&optional window return-other)
@@ -344,6 +345,9 @@
   (defun zsh-shell-mode-setup ()
     (setq-local comint-process-echoes t))
   (add-hook 'shell-mode-hook #'zsh-shell-mode-setup))
+
+(with-eval-after-load 'tramp-sh
+  (setq tramp-histfile-override nil))
 
 (with-eval-after-load 'compile
   (setq compilation-environment '("TERM=dumb"))
