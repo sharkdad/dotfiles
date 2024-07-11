@@ -32,12 +32,12 @@
 (setq eldoc-echo-area-prefer-doc-buffer t)
 (setq even-window-sizes nil)
 (setq help-window-select t)
+(setq history-length 10000)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice 'recover-session)
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 500)
-(setq shell-command-prompt-show-cwd t)
 (setq split-window-preferred-function #'shark-split-window-only-once)
 (setq tab-bar-close-button-show nil)
 (setq tab-bar-new-button-show nil)
@@ -341,9 +341,24 @@
 	      (file . hide))))
 
 (with-eval-after-load 'shell
-  (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
+  (setq shell-command-prompt-show-cwd t)
+
+  (defun brent-shell-add-history (cmd)
+    (add-to-history 'shell-command-history
+                    (substring-no-properties cmd)))
+  (advice-add 'comint-add-to-input-history
+              :after-while
+              'brent-shell-add-history)
+
   (defun zsh-shell-mode-setup ()
-    (setq-local comint-process-echoes t))
+    (setq-local comint-process-echoes t)
+
+    (setq-local comint-input-ring
+                (make-ring (length shell-command-history)))
+    (dolist (cmd shell-command-history)
+      (ring-insert-at-beginning comint-input-ring cmd)))
+
+  (add-hook 'shell-mode-hook 'compilation-shell-minor-mode)
   (add-hook 'shell-mode-hook #'zsh-shell-mode-setup))
 
 (with-eval-after-load 'tramp-sh
