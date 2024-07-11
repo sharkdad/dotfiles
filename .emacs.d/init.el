@@ -252,10 +252,16 @@
   (which-key-setup-minibuffer)
   (which-key-mode))
 
+(defun term-default ()
+  (interactive)
+  (term shell-file-name))
+
 (bind-keys
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
+ ("C-c s" . shell)
+ ("C-c t" . term-default)
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer))
 
@@ -340,6 +346,11 @@
         '((stashes . hide)
 	      (file . hide))))
 
+(with-eval-after-load 'comint
+  (setq ansi-color-for-comint-mode t)
+  (setq comint-terminfo-terminal "dumb-emacs-ansi")
+  (add-to-list 'comint-output-filter-functions 'ansi-color-process-output))
+
 (with-eval-after-load 'shell
   (setq shell-command-prompt-show-cwd t)
 
@@ -363,10 +374,6 @@
 
 (with-eval-after-load 'tramp-sh
   (setq tramp-histfile-override nil))
-
-(with-eval-after-load 'compile
-  (setq compilation-environment '("TERM=dumb"))
-  (add-hook 'compilation-filter-hook 'ansi-color-compilation-filter))
 
 (with-eval-after-load 'dired
   (require 'dired-x)
