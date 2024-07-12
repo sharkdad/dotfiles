@@ -29,6 +29,8 @@
 (show-paren-mode 1)
 (winner-mode t)
 
+(setq display-buffer-alist
+      '((t (display-buffer-reuse-window display-buffer-in-previous-window))))
 (setq eldoc-echo-area-prefer-doc-buffer t)
 (setq even-window-sizes nil)
 (setq help-window-select t)
@@ -39,6 +41,7 @@
 (setq mac-option-modifier 'super)
 (setq recentf-max-saved-items 500)
 (setq split-window-preferred-function #'shark-split-window-only-once)
+(setq switch-to-buffer-obey-display-actions t)
 (setq tab-bar-close-button-show nil)
 (setq tab-bar-new-button-show nil)
 (setq tab-bar-show 1)
