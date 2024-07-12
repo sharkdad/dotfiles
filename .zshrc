@@ -1,3 +1,5 @@
+alias apt='sudo apt -o Dpkg::Progress-Fancy=0'
+alias aptitude='sudo TERM=eterm aptitude'
 alias diff='diff --color=auto'
 alias grep='grep --color=auto'
 alias ls='ls --color=auto'
