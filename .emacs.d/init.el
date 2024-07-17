@@ -1,5 +1,6 @@
 ;; -*- lexical-binding: t; -*-
 
+(setq custom-safe-themes t)
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (when (file-exists-p custom-file)
   (load custom-file))
@@ -86,6 +87,7 @@
   :bind
   (([remap Info-search] . consult-info)
    ("C-c h" . consult-history)
+   ("C-c i" . consult-info)
    ("C-x M-:" . consult-complex-command)
    ("C-x b" . consult-buffer)
    ("C-x 4 b" . consult-buffer-other-window)
@@ -188,9 +190,7 @@
   :init
   (doom-modeline-mode 1))
 
-(use-package ef-themes
-  :config
-  (load-theme 'ef-dark t))
+(use-package ef-themes)
 
 (use-package eldoc-box
   :init
