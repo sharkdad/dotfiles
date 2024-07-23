@@ -52,6 +52,14 @@
 (setq comint-prompt-read-only t)
 (setq-default comint-scroll-to-bottom-on-input t)
 
+(defun my/flymake-project ()
+  (interactive)
+  (flymake-show-project-diagnostics)
+  (let* ((prj (project-current))
+         (root (project-root prj))
+         (buffer (flymake--project-diagnostics-buffer root)))
+    (switch-to-buffer buffer)))
+
 (defun shark-split-window-only-once (&optional window return-other)
   (let* ((window (or window (selected-window)))
          (other (next-window window 'nomini)))
@@ -267,6 +275,7 @@
  ("C-<tab>" . winner-undo)
  ("C-S-<tab>" . winner-redo)
  ("C-<iso-lefttab>" . winner-redo)
+ ("C-c f" . my/flymake-project)
  ("C-c s" . shell)
  ("C-c t" . term-default)
  ("C-x k" . kill-current-buffer)
