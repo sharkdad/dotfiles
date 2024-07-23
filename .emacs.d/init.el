@@ -155,6 +155,7 @@
 (use-package corfu
   :custom
   (corfu-auto t)
+  (corfu-popupinfo-delay 0.2)
   :init
   (defun corfu-move-to-minibuffer ()
     (interactive)
@@ -176,7 +177,10 @@
           "TAB" #'corfu-complete
           "M-SPC" #'corfu-move-to-minibuffer))
   (global-corfu-mode)
+  (corfu-history-mode)
+  (corfu-popupinfo-mode)
   (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
+  (add-to-list 'savehist-additional-variables 'corfu-history)
 
   (defun corfu-enable-in-minibuffer ()
     "Enable Corfu in the minibuffer if `completion-at-point' is bound."
@@ -434,6 +438,8 @@
 (setq c-default-style "java")
 
 (with-eval-after-load 'eglot
+  (setq-default eglot-workspace-configuration
+                '((:python\.analysis . (:diagnosticMode "workspace"))))
   (setq eglot-autoshutdown t)
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
