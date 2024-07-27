@@ -32,7 +32,9 @@
 
 (setq display-buffer-alist
       '((t (display-buffer-reuse-window display-buffer-in-previous-window))))
+(setq eldoc-documentation-strategy #'eldoc-documentation-compose)
 (setq eldoc-echo-area-prefer-doc-buffer t)
+(setq eldoc-echo-area-use-multiline-p nil)
 (setq even-window-sizes nil)
 (setq help-window-select t)
 (setq history-length 10000)
@@ -205,13 +207,25 @@
 (use-package ef-themes)
 
 (use-package eldoc-box
-  :init
-  (eldoc-box-hover-mode))
+  :hook (eldoc-mode . eldoc-box-hover-at-point-mode)
+  :config
+  (defun my/eldoc-box--at-point-position (w h)
+    (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
+           (window-r (nth 2 (window-absolute-pixel-edges)))
+           (frame-l (nth 0 (frame-edges)))
+           (frame-r (nth 2 (frame-edges)))
+           (distance-l (- window-l frame-l))
+           (distance-r (- frame-r window-r))
+           (at-point-pos (eldoc-box--default-at-point-position-function w h)))
+      (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
+            ((>= distance-r w) (cons window-r (cdr at-point-pos)))
+            (t at-point-pos))))
+  (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position))
 
 (use-package embark
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
-   ("M-." . embark-dwim)        ;; good alternative: M-.
+   ;; ("M-." . embark-dwim)        ;; good alternative: M-.
    ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
   :init
@@ -278,6 +292,7 @@
  ("C-c f" . my/flymake-project)
  ("C-c s" . shell)
  ("C-c t" . term-default)
+ ("C-h ." . eldoc-doc-buffer)
  ("C-x k" . kill-current-buffer)
  ("C-x C-b" . ibuffer))
 
@@ -453,22 +468,31 @@
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
   (setq eglot-extend-to-xref t)
-  (setq eglot-ignored-server-capabilities
-	'(:colorProvider
-	  :inlayHintProvider))
+  (setq eglot-ignored-server-capabilities '(:colorProvider
+                                            :inlayHintProvider))
   (setq eglot-report-progress nil)
-  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-mode t)
   ;; TODO glsl_analyzer for c-mode glsl files
   (add-to-list 'eglot-server-programs
-               '(glsl-ts-mode . ("glsl_analyzer"))))
+               '(glsl-ts-mode . ("glsl_analyzer")))
+
+  (defun my/eglot-hook ()
+    (remove-hook 'eldoc-documentation-functions #'flymake-eldoc-function t)
+    (add-hook 'eldoc-documentation-functions #'flymake-eldoc-function nil t))
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-hook))
+
+(defun my/emacs-lisp-hook ()
+  (remove-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring t)
+  (add-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring-with-value nil t))
+(add-hook 'emacs-lisp-mode-hook #'my/emacs-lisp-hook)
 
 (with-eval-after-load 'go-ts-mode
   (defun go-config ()
     (setq-local go-ts-mode-indent-offset 4)
     (setq-local indent-tabs-mode t)
     (setq-local tab-width 4)
-    (defun my-eglot-organize-imports () (interactive)
-	       (eglot-code-actions nil nil "source.organizeImports" t))
+    (defun my-eglot-organize-imports ()
+      (interactive)
+	  (eglot-code-actions nil nil "source.organizeImports" t))
     (add-hook 'before-save-hook 'my-eglot-organize-imports nil t)
     (add-hook 'before-save-hook 'eglot-format-buffer nil t))
   (add-hook 'go-ts-mode-hook 'eglot-ensure)
@@ -481,7 +505,10 @@
   :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
 (with-eval-after-load 'python
+  (defun my/python-hook ()
+    (setq-local indent-region-function 'python-indent-shift-right))
   (setq interpreter-mode-alist nil)
+  (add-hook 'python-base-mode-hook #'my/python-hook)
   (add-hook 'python-base-mode-hook 'eglot-ensure))
 
 (use-package treesit-auto
