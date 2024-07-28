@@ -504,12 +504,30 @@
 (use-package markdown-mode
   :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
-(with-eval-after-load 'python
+(use-package python
+  :ensure nil
+  :hook (python-base-mode . my/python-hook)
+  :hook (python-base-mode . eglot-ensure)
+  :bind
+  (:map python-base-mode-map
+        ("<tab>" . my/python-indent-for-tab-command)
+        ("S-<iso-lefttab>" . python-indent-shift-left))
+  :config
   (defun my/python-hook ()
-    (setq-local indent-region-function 'python-indent-shift-right))
+    (setq-local tab-always-indent t))
+
+  (defun my/python-indent-for-tab-command ()
+    (interactive)
+    (cond ((use-region-p)
+           (call-interactively 'python-indent-shift-right))
+          ((eq (current-indentation)
+               (- (line-end-position) (line-beginning-position)))
+           (call-interactively 'indent-for-tab-command))
+          (t
+           (call-interactively 'completion-at-point))))
+
   (setq interpreter-mode-alist nil)
-  (add-hook 'python-base-mode-hook #'my/python-hook)
-  (add-hook 'python-base-mode-hook 'eglot-ensure))
+  (add-to-list 'python-indent-trigger-commands #'my/python-indent-for-tab-command))
 
 (use-package treesit-auto
   :custom
