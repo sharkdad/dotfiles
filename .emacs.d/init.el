@@ -26,7 +26,11 @@
 
 (global-hl-line-mode)
 (show-paren-mode)
-(setq-default show-trailing-whitespace t)
+
+(defun my/show-trailing-whitespace ()
+  (setq-local show-trailing-whitespace t))
+
+(add-hook 'prog-mode-hook #'my/show-trailing-whitespace)
 
 (setq display-buffer-alist
       '((t (display-buffer-reuse-window display-buffer-in-previous-window))))
@@ -38,83 +42,43 @@
 (setq even-window-sizes nil)
 (setq split-window-preferred-function #'my/split-window-only-once)
 
-(defun my/split-window-only-once (&optional window return-other)
-  (let* ((window (or window (selected-window)))
-         (other (next-window window 'nomini)))
-    (cond ((eq window other) (split-window-sensibly window))
-          (return-other other))))
+(defun my/split-window-only-once (window)
+  (let* ((lru (get-lru-window nil nil nil t))
+         (mru (get-mru-window nil nil nil t)))
+    (when (eq lru mru) (split-window-sensibly window))))
 
 (winner-mode t)
 (bind-keys ("C-<tab>"         . winner-undo)
            ("C-<iso-lefttab>" . winner-redo))
 
-(setq eldoc-documentation-strategy #'eldoc-documentation-compose)
-(setq eldoc-echo-area-prefer-doc-buffer t)
-(setq eldoc-echo-area-use-multiline-p nil)
+(defun my/move-to-other-window ()
+  (interactive)
+  (let* ((window (selected-window))
+         (buffer (current-buffer))
+         (other (display-buffer buffer t)))
+    (when other
+      (quit-window nil window)
+      (select-window other))))
 
-(bind-keys ("C-h ." . eldoc-doc-buffer))
+(bind-keys ("C-c o" . my/move-to-other-window)
+           :repeat-map my/move-to-other-window-repeat-map
+           ("o"     . my/move-to-other-window))
 
-(use-package eldoc-box
-  :hook (eldoc-mode . eldoc-box-hover-at-point-mode)
-
-  :config
-  (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position)
-
-  (defun my/eldoc-box--at-point-position (w h)
-    (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
-           (window-r (nth 2 (window-absolute-pixel-edges)))
-           (frame-l (nth 0 (frame-edges)))
-           (frame-r (nth 2 (frame-edges)))
-           (distance-l (- window-l frame-l))
-           (distance-r (- frame-r window-r))
-           (at-point-pos (eldoc-box--default-at-point-position-function w h)))
-      (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
-            ((>= distance-r w) (cons window-r (cdr at-point-pos)))
-            (t at-point-pos)))))
-
-
-;; FIXME: kill
-(use-package ace-window
-  :bind
-  (("C-c o" . shark-move-window)
-   ("C-c w" . ace-window)
-   :repeat-map shark-move-window-repeat-map
-   ("o"     . shark-move-window))
-
-  :custom
-  (aw-dispatch-always t)
-
-  :config
-  (defun shark-move-window ()
-    "Move buffer to other window, creating if necessary."
-    (interactive)
-    (let* ((window (selected-window))
-           (buffer (current-buffer))
-           (other (my/split-window-only-once window t)))
-      (quit-window)
-      (aw-switch-to-window other)
-      (switch-to-buffer buffer)))
-  (put 'shark-move-window 'repeat-map 'shark-move-window-repeat-map))
-
-
-(use-package doom-modeline
-  :config
-  (doom-modeline-mode))
-
-
+(use-package delight)
 (use-package ef-themes)
+(use-package mode-line-bell :config (mode-line-bell-mode))
+(use-package rainbow-delimiters :hook prog-mode)
 
-
-(use-package mode-line-bell
-  :config
-  (mode-line-bell-mode))
-
-
-(use-package rainbow-delimiters
-  :hook prog-mode)
-
+(use-package emacs
+  :ensure nil
+  :delight
+  (eldoc-mode)
+  (global-superword-mode)
+  (superword-mode))
 
 (use-package which-key
+  :delight
+
   :custom
   (which-key-idle-delay 0.5)
 
@@ -151,7 +115,7 @@
 (setq make-backup-files nil)
 (setq kill-buffer-delete-auto-save-files t)
 
-(bind-keys ("C-x k" . kill-current-buffer)
+(bind-keys ("C-x k"   . kill-current-buffer)
            ("C-x C-b" . ibuffer))
 
 (use-package avy
@@ -171,12 +135,16 @@
 
 (setq completion-ignore-case t)
 (setq history-length 10000)
+(setq read-extended-command-predicate #'command-completion-default-include-p)
 (setq recentf-max-saved-items 1000)
 
 (use-package consult
   :bind
   (([remap Info-search] . consult-info)
+   ("C-c M-x"           . consult-mode-command)
    ("C-c h"             . consult-history)
+   ("C-c k"             . consult-kmacro)
+   ("C-c m"             . consult-man)
    ("C-c i"             . consult-info)
    ("C-x M-:"           . consult-complex-command)
    ("C-x b"             . consult-buffer)
@@ -212,92 +180,49 @@
    ("M-s"               . consult-history)
    ("M-r"               . consult-history))
 
-  :init
-  (setq register-preview-delay 0.5
-        register-preview-function #'consult-register-format)
+  :custom
+  (consult-narrow-key "<")
+  (register-preview-delay nil)
+  (register-preview-function #'consult-register-format)
 
-  (advice-add #'register-preview :override #'consult-register-window)
-
-  (setq xref-show-xrefs-function #'consult-xref
+  (xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
-  (setq enable-recursive-minibuffers t)
-  (setq minibuffer-prompt-properties
-        '(read-only t cursor-intangible t face minibuffer-prompt))
-  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
-
-  (setq read-extended-command-predicate
-        #'command-completion-default-include-p)
-
   :config
+  (advice-add #'register-preview :override #'consult-register-window)
+
   (consult-customize
    consult-theme
    consult-ripgrep consult-git-grep consult-grep
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
-   :preview-key '(:debounce 0.5 any))
-  (setq consult-narrow-key "<"))
+   :preview-key "M-."))
 
 
 (use-package corfu
+  :demand
+  :bind
+  (:map corfu-map
+        ("RET" . nil))
+
   :custom
   (corfu-auto t)
-  (corfu-popupinfo-delay 0.2)
+  (corfu-auto-prefix 2)
+  (corfu-popupinfo-delay 0.5)
 
-  :init
-  (defun corfu-move-to-minibuffer ()
-    (interactive)
-    (pcase completion-in-region--data
-      (`(,beg ,end ,table ,pred ,extras)
-       (let ((completion-extra-properties extras)
-             completion-cycle-threshold completion-cycling)
-         (consult-completion-in-region beg end table pred)))))
-
-  (setq corfu-map
-        (define-keymap
-          "<remap> <completion-at-point>" #'corfu-complete
-          ;; XXX [tab] is bound because of org-mode and orgtbl-mode.
-          ;; The binding should be removed from org-mode-map.
-          "<tab>" #'corfu-complete
-          "M-n" #'corfu-next
-          "M-p" #'corfu-previous
-          "C-g" #'corfu-quit
-          "TAB" #'corfu-complete
-          "M-SPC" #'corfu-move-to-minibuffer))
+  :config
   (global-corfu-mode)
   (corfu-history-mode)
   (corfu-popupinfo-mode)
-  (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
-  (add-to-list 'savehist-additional-variables 'corfu-history)
-
-  (defun corfu-enable-in-minibuffer ()
-    "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-    (when (where-is-internal #'completion-at-point (list (current-local-map)))
-      (setq-local corfu-echo-delay nil
-                  corfu-popupinfo-delay nil)
-      (corfu-mode)))
-  (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer))
+  (add-to-list 'savehist-additional-variables 'corfu-history))
 
 
 (use-package embark
   :bind
-  (("C-." . embark-act)         ;; pick some comfortable binding
-   ;; ("M-." . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
-
-  :init
-  ;; Show the Embark target at point via Eldoc. You may adjust the
-  ;; Eldoc strategy, if you want to see the documentation from
-  ;; multiple providers. Beware that using this can be a little
-  ;; jarring since the message shown in the minibuffer can be more
-  ;; than one line, causing the modeline to move up and down:
-
-  ;; (add-hook 'eldoc-documentation-functions #'embark-eldoc-first-target)
-  ;; (setq eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)
-
-  ;; Optionally replace the key help with a completing-read interface
-  (setq prefix-help-command #'embark-prefix-help-command))
+  (("C-." . embark-act)
+   ("M-." . embark-dwim)
+   ("C-h B" . embark-bindings)))
 
 
 (use-package embark-consult
@@ -310,9 +235,10 @@
 
 
 (use-package orderless
-  :custom
-  (completion-styles '(orderless basic))
-  (completion-category-overrides '((file (styles basic partial-completion)))))
+  :config
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (styles partial-completion)))))
 
 
 (use-package vertico
@@ -322,12 +248,14 @@
   (:map vertico-map
         ("RET"   . vertico-directory-enter)
         ("DEL"   . vertico-directory-delete-char)
-        ("M-DEL" . vertico-directory-delete-word))
+        ("M-DEL" . vertico-directory-delete-word)
+        ("C-;"   . vertico-quick-jump))
 
-  :init
-  (vertico-mode)
-  (vertico-multiform-mode)
-  (setq vertico-count (/ (window-total-height) 3)))
+  :custom
+  (vertico-count (/ (window-total-height) 2))
+
+  :config
+  (vertico-mode))
 
 
 ;;; os
@@ -443,6 +371,34 @@
       (apply orig-fun args))))
 
 
+(use-package eldoc-box
+  :delight (eldoc-box-hover-at-point-mode)
+  :hook (eldoc-mode . eldoc-box-hover-at-point-mode)
+  :bind
+  (("C-h ." . eldoc-doc-buffer))
+
+
+  :custom
+  (eldoc-documentation-strategy #'eldoc-documentation-compose)
+  (eldoc-echo-area-prefer-doc-buffer t)
+  (eldoc-echo-area-use-multiline-p nil)
+
+  :config
+  (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position)
+
+  (defun my/eldoc-box--at-point-position (w h)
+    (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
+           (window-r (nth 2 (window-absolute-pixel-edges)))
+           (frame-l (nth 0 (frame-edges)))
+           (frame-r (nth 2 (frame-edges)))
+           (distance-l (- window-l frame-l))
+           (distance-r (- frame-r window-r))
+           (at-point-pos (eldoc-box--default-at-point-position-function w h)))
+      (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
+            ((>= distance-r w) (cons window-r (cdr at-point-pos)))
+            (t at-point-pos)))))
+
+
 (use-package eglot
   :ensure nil
   :hook (go-ts-mode         . eglot-ensure)
@@ -460,6 +416,7 @@
    '((:python\.analysis . (:diagnosticMode "workspace"))))
 
   :config
+  (setq completion-category-defaults nil)
   (add-to-list 'eglot-server-programs '(glsl-ts-mode . ("glsl_analyzer")))
 
   (defun my/eglot-hook ()
@@ -566,6 +523,7 @@
 
 
 (use-package pet
+  :delight
   :hook python-base-mode)
 
 
