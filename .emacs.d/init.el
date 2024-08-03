@@ -1,6 +1,5 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
-
 ;;; custom file
 
 (setq custom-safe-themes t)
@@ -19,6 +18,7 @@
 (require 'use-package-ensure)
 (setq use-package-always-ensure t)
 
+
 ;;; ui, display
 
 (column-number-mode)
@@ -27,10 +27,10 @@
 (global-hl-line-mode)
 (show-paren-mode)
 
-(defun my/show-trailing-whitespace ()
+(defun my/prog-hook ()
   (setq-local show-trailing-whitespace t))
 
-(add-hook 'prog-mode-hook #'my/show-trailing-whitespace)
+(add-hook 'prog-mode-hook #'my/prog-hook)
 
 (setq display-buffer-alist
       '((t (display-buffer-reuse-window display-buffer-in-previous-window))))
@@ -62,6 +62,8 @@
       (select-window other))))
 
 (bind-keys ("C-c o" . my/move-to-other-window)
+           ("C-c w b" . balance-windows)
+           ("C-c w m" . maximize-window)
            :repeat-map my/move-to-other-window-repeat-map
            ("o"     . my/move-to-other-window))
 
@@ -72,11 +74,8 @@
 
 (use-package which-key
   :delight
-
-  :custom
-  (which-key-idle-delay 0.5)
-
   :config
+  (setq which-key-idle-delay 0.5)
   (which-key-setup-minibuffer)
   (which-key-mode))
 
@@ -175,16 +174,15 @@
    ("M-s"               . consult-history)
    ("M-r"               . consult-history))
 
-  :custom
-  (consult-narrow-key "<")
-  (register-preview-delay nil)
-  (register-preview-function #'consult-register-format)
-
-  (xref-show-xrefs-function #'consult-xref
-        xref-show-definitions-function #'consult-xref)
-
   :config
+  (setq consult-narrow-key "<")
+
+  (setq register-preview-delay nil)
+  (setq register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
+
+  (setq xref-show-xrefs-function #'consult-xref
+        xref-show-definitions-function #'consult-xref)
 
   (consult-customize
    consult-theme
@@ -195,30 +193,27 @@
    :preview-key "M-."))
 
 
-(defun my/corfu-hook ()
-  (setq-local completion-styles '(orderless-fast basic)))
-
 (use-package corfu
   :demand
-  :hook (corfu-mode . my/corfu-hook)
   :bind
   (:map corfu-map
         ("RET" . nil)
         ("C-;" . corfu-quick-jump))
 
-  :custom
-  (corfu-auto t)
-  (corfu-auto-prefix 2)
-  (corfu-count 20)
-  (corfu-popupinfo-delay 0.5)
-  (corfu-preselect 'first)
-  (corfu-preview-current nil)
-
   :config
+  (setq corfu-auto t)
+  (setq corfu-auto-prefix 2)
+  (setq corfu-count 20)
+  (setq corfu-popupinfo-delay 0.5)
+  (setq corfu-preselect 'first)
+  (setq corfu-preview-current nil)
+
   (global-corfu-mode)
+
   (corfu-history-mode)
-  (corfu-popupinfo-mode)
-  (add-to-list 'savehist-additional-variables 'corfu-history))
+  (add-to-list 'savehist-additional-variables 'corfu-history)
+
+  (corfu-popupinfo-mode))
 
 
 (use-package embark
@@ -233,20 +228,12 @@
 
 
 (use-package marginalia
-  :init
+  :config
   (marginalia-mode))
 
 
-(defun orderless-fast-dispatch (word index total)
-  (and (= index 0) (= total 1) (length< word 3)
-       (cons 'orderless-literal-prefix word)))
-
 (use-package orderless
   :config
-  (orderless-define-completion-style orderless-fast
-    (orderless-style-dispatchers '(orderless-fast-dispatch))
-    (orderless-matching-styles '(orderless-literal orderless-regexp)))
-
   (setq completion-styles '(orderless basic))
   (setq completion-category-defaults nil)
   (setq completion-category-overrides '((file (styles partial-completion))
@@ -263,10 +250,8 @@
         ("M-DEL" . vertico-directory-delete-word)
         ("C-;"   . vertico-quick-jump))
 
-  :custom
-  (vertico-count (/ (window-total-height) 2))
-
   :config
+  (setq vertico-count (/ (window-total-height) 2))
   (vertico-mode))
 
 
@@ -276,26 +261,49 @@
 (setq tramp-histfile-override nil)
 
 (setq ansi-color-for-comint-mode t)
+(setq comint-input-ring-size history-length)
 (setq comint-prompt-read-only t)
 (setq comint-terminfo-terminal "dumb-emacs-ansi")
 (setq shell-command-prompt-show-cwd t)
 
 (setq-default comint-scroll-to-bottom-on-input t)
 
-(advice-add 'comint-add-to-input-history :after-while #'my/shell-add-history)
 (add-hook 'comint-output-filter-functions #'ansi-color-process-output)
+
+
+(advice-add 'comint-term-environment :filter-return #'my/comint-env)
+
+(defun my/comint-env (env)
+  (nconc (list "PAGER=cat" "COLORTERM=truecolor") env))
+
+
+(defvar-local my/comint-history-variable nil)
+(advice-add 'comint-add-to-input-history :after-while #'my/comint-add-history)
+
+(defun my/comint-history-setup ()
+  (setq my/comint-history-variable
+        (intern (concat (symbol-name major-mode) "-history")))
+  (add-to-list 'savehist-additional-variables my/comint-history-variable)
+
+  (unless (boundp my/comint-history-variable)
+    (set my/comint-history-variable nil))
+
+  (when-let ((history (symbol-value my/comint-history-variable)))
+    (setq-local comint-input-ring (ring-convert-sequence-to-ring history))))
+
+(defun my/comint-add-history (cmd)
+  (when my/comint-history-variable
+    (add-to-history my/comint-history-variable (substring-no-properties cmd))))
+
+
 (add-hook 'shell-mode-hook #'compilation-shell-minor-mode)
+(add-hook 'shell-mode-hook #'my/comint-history-setup)
 (add-hook 'shell-mode-hook #'my/shell-hook)
 
-(defun my/shell-add-history (cmd)
-  (add-to-history 'shell-command-history (substring-no-properties cmd)))
-
 (defun my/shell-hook ()
-  (setq-local comint-process-echoes t)
+  (setq-local comint-process-echoes t))
 
-  (setq-local comint-input-ring (make-ring (length shell-command-history)))
-  (dolist (cmd shell-command-history)
-    (ring-insert-at-beginning comint-input-ring cmd)))
+
 
 (defun my/term-default ()
   (interactive)
@@ -303,6 +311,7 @@
 
 (bind-keys ("C-c s" . shell)
            ("C-c t" . my/term-default))
+
 
 (require 'dired-x)
 (setq dired-dwim-target t)
@@ -320,25 +329,24 @@
   :bind
   (("C-c a" . org-agenda))
 
-  :custom
-  (org-agenda-custom-commands
+  :config
+  (setq org-agenda-custom-commands
    '(("d" "dashboard" ((tags-todo "CATEGORY=\"inbox\"")
                        (agenda "")))
      ("b" "backlog" tags-todo "-fun")
      ("f" "fun" tags-todo "fun")))
-  (org-agenda-dim-blocked-tasks 'invisible)
-  (org-agenda-files '("~/sync/org/"))
-  (org-agenda-start-on-weekday nil)
-  (org-agenda-tags-todo-honor-ignore-options t)
-  (org-agenda-todo-ignore-deadlines 'all)
-  (org-agenda-todo-ignore-scheduled 'all)
-  (org-agenda-window-setup 'current-window)
-  (org-enforce-todo-dependencies t)
-  (org-enforce-todo-checkbox-dependencies t)
-  (org-log-done 'time)
-  (org-tag-alist '(("fun" . ?f)))
+  (setq org-agenda-dim-blocked-tasks 'invisible)
+  (setq org-agenda-files '("~/sync/org/"))
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-tags-todo-honor-ignore-options t)
+  (setq org-agenda-todo-ignore-deadlines 'all)
+  (setq org-agenda-todo-ignore-scheduled 'all)
+  (setq org-agenda-window-setup 'current-window)
+  (setq org-enforce-todo-dependencies t)
+  (setq org-enforce-todo-checkbox-dependencies t)
+  (setq org-log-done 'time)
+  (setq org-tag-alist '(("fun" . ?f)))
 
-  :config
   (add-to-list 'org-modules 'org-habit t))
 
 
@@ -352,10 +360,8 @@
    ("C-c n a" . org-roam-alias-add)
    ("C-c n l" . org-roam-buffer-toggle))
 
-  :custom
-  (org-roam-directory "~/sync/org/roam")
-
   :config
+  (setq org-roam-directory "~/sync/org/roam")
   (org-roam-db-autosync-mode))
 
 
@@ -368,23 +374,21 @@
   :init
   (setq dape-key-prefix "\C-cd")
 
-  :custom
-  (dape-info-hide-mode-line nil)
-
   :config
+  (setq dape-info-hide-mode-line nil)
   (remove-hook 'dape-on-start-hooks #'dape-info)
   (remove-hook 'dape-on-start-hooks #'dape-repl)
   (add-hook 'dape-on-start-hooks #'save-some-buffers)
   (add-hook 'dape-on-stopped-hooks #'dape-info)
-  (advice-add 'dape--display-buffer :around #'my/dape-fix-display-buffer)
+  (advice-add 'dape--display-buffer :around #'my/dape-fix-display-buffer))
 
-  (defun my/dape-fix-display-buffer (orig-fun &rest args)
-    (let ((display-buffer-alist `(((derived-mode . dape-info-parent-mode)
-                                   (display-buffer-in-side-window)
-                                   (side . bottom)
-                                   (window-parameters
-                                    (no-other-window . t))))))
-      (apply orig-fun args))))
+(defun my/dape-fix-display-buffer (orig-fun &rest args)
+  (let ((display-buffer-alist `(((derived-mode . dape-info-parent-mode)
+                                 (display-buffer-in-side-window)
+                                 (side . bottom)
+                                 (window-parameters
+                                  (no-other-window . t))))))
+    (apply orig-fun args)))
 
 
 (use-package devdocs
@@ -399,53 +403,50 @@
   :bind
   (("C-h ." . eldoc-doc-buffer))
 
-
-  :custom
-  (eldoc-documentation-strategy #'eldoc-documentation-compose)
-  (eldoc-echo-area-prefer-doc-buffer t)
-  (eldoc-echo-area-use-multiline-p nil)
-
   :config
   (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position)
+  (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
+  (setq eldoc-echo-area-prefer-doc-buffer t)
+  (setq eldoc-echo-area-use-multiline-p nil))
 
-  (defun my/eldoc-box--at-point-position (w h)
-    (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
-           (window-r (nth 2 (window-absolute-pixel-edges)))
-           (frame-l (nth 0 (frame-edges)))
-           (frame-r (nth 2 (frame-edges)))
-           (distance-l (- window-l frame-l))
-           (distance-r (- frame-r window-r))
-           (at-point-pos (eldoc-box--default-at-point-position-function w h)))
-      (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
-            ((>= distance-r w) (cons window-r (cdr at-point-pos)))
-            (t at-point-pos)))))
+(defun my/eldoc-box--at-point-position (w h)
+  (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
+         (window-r (nth 2 (window-absolute-pixel-edges)))
+         (frame-l (nth 0 (frame-edges)))
+         (frame-r (nth 2 (frame-edges)))
+         (distance-l (- window-l frame-l))
+         (distance-r (- frame-r window-r))
+         (at-point-pos (eldoc-box--default-at-point-position-function w h)))
+    (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
+          ((>= distance-r w) (cons window-r (cdr at-point-pos)))
+          (t at-point-pos))))
 
 
 (use-package eglot
-  :hook (go-ts-mode         . eglot-ensure)
-  :hook (python-base-mode   . eglot-ensure)
-  :hook (eglot-managed-mode . my/eglot-hook)
-
-  :custom
-  (eglot-autoshutdown t)
-  (eglot-confirm-server-initiated-edits nil)
-  (eglot-events-buffer-size 0)
-  (eglot-extend-to-xref t)
-  (eglot-ignored-server-capabilities '(:colorProvider :inlayHintProvider))
-  (eglot-report-progress nil)
-  (eglot-workspace-configuration
-   '((:python\.analysis . (:diagnosticMode "workspace"))))
+  :hook (go-ts-mode       . eglot-ensure)
+  :hook (python-base-mode . eglot-ensure)
 
   :config
+  (setq eglot-autoshutdown t)
+  (setq eglot-confirm-server-initiated-edits nil)
+  (setq eglot-events-buffer-size 0)
+  (setq eglot-extend-to-xref t)
+  (setq eglot-ignored-server-capabilities '(:colorProvider :inlayHintProvider))
+  (setq eglot-report-progress nil)
+  (setq eglot-sync-connect nil)
+  (setq eglot-workspace-configuration
+        '((:python\.analysis . (:diagnosticMode "workspace"))))
+
   (add-to-list 'eglot-server-programs '(glsl-ts-mode . ("glsl_analyzer")))
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-hook))
 
-  (defun my/eglot-hook ()
-    (remove-hook 'eldoc-documentation-functions #'flymake-eldoc-function t)
-    (add-hook 'eldoc-documentation-functions #'flymake-eldoc-function nil t))
+(defun my/eglot-hook ()
+  (remove-hook 'eldoc-documentation-functions #'flymake-eldoc-function t)
+  (add-hook 'eldoc-documentation-functions #'flymake-eldoc-function nil t))
 
-  (defun my/eglot-organize-imports ()
-    (interactive)
-	(eglot-code-actions nil nil "source.organizeImports" t)))
+(defun my/eglot-organize-imports ()
+  (interactive)
+  (eglot-code-actions nil nil "source.organizeImports" t))
 
 
 (defun my/flymake-project ()
@@ -475,20 +476,18 @@
    :map magit-hunk-section-map
    ("RET"     . magit-diff-visit-file-other-window))
 
-  :custom
-  (magit-diff-refine-hunk 'all)
-  (magit-section-initial-visibility-alist '((stashes . hide)
-                                            (file . hide))))
+  :config
+  (setq magit-diff-refine-hunk 'all)
+  (setq magit-section-initial-visibility-alist '((stashes . hide)
+                                                 (file . hide))))
 
 
 (use-package treesit-auto
-  :custom
-  (treesit-auto-install 'prompt)
-  (treesit-auto-langs '(css dockerfile go gomod html javascript json
-                        makefile markdown python toml tsx typescript
-                        yaml))
-
   :config
+  (setq treesit-auto-install 'prompt)
+  (setq treesit-auto-langs '(css dockerfile go gomod html javascript
+                                 json makefile markdown python toml
+                                 tsx typescript yaml))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
@@ -504,22 +503,30 @@
 (add-hook 'emacs-lisp-mode-hook #'my/emacs-lisp-hook)
 
 
-(use-package go-ts-mode
-  :ensure nil
-  :hook (go-ts-mode . my/go-hook)
+(setq go-ts-mode-indent-offset tab-width)
+(add-hook 'go-ts-mode-hook #'my/go-hook)
 
-  :custom
-  (go-ts-mode-indent-offset (tab-width))
-
-  :config
-  (defun my/go-hook ()
-    (add-hook 'before-save-hook #'my/eglot-organize-imports nil t)
-    (add-hook 'before-save-hook #'eglot-format-buffer nil t)))
+(defun my/go-hook ()
+  (add-hook 'before-save-hook #'my/eglot-organize-imports nil t)
+  (add-hook 'before-save-hook #'eglot-format-buffer nil t))
 
 
 (use-package markdown-mode
   :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
+
+(use-package python
+  :ensure nil
+  :bind
+  (:map python-base-mode-map
+        ("TAB"       . my/python-indent-for-tab-command)
+        ("<backtab>" . python-indent-shift-left))
+  :config
+  (add-hook 'inferior-python-mode-hook #'my/comint-history-setup)
+  (add-hook 'python-base-mode-hook #'my/python-hook)
+
+  (add-to-list 'python-indent-trigger-commands
+               #'my/python-indent-for-tab-command))
 
 (defun my/python-hook ()
   (setq-local tab-always-indent t))
@@ -534,33 +541,20 @@
         (t
          (call-interactively 'completion-at-point))))
 
-(use-package python
-  :ensure nil
-  :hook (python-base-mode . my/python-hook)
-  :hook (python-base-mode . eglot-ensure)
-
-  :bind
-  (:map python-base-mode-map
-        ("TAB"       . my/python-indent-for-tab-command)
-        ("<backtab>" . python-indent-shift-left))
-
-  :config
-  (add-to-list 'python-indent-trigger-commands
-               #'my/python-indent-for-tab-command))
-
 
 (use-package pet
   :delight
-  :hook python-base-mode)
+  :init
+  (add-hook 'python-base-mode-hook 'pet-mode -10))
 
 
 (use-package squirrel-mode
   :mode "\\.nut\\'"
-  :hook (squirrel-mode . my/squirrel-hook)
-
   :config
-  (defun my/squirrel-hook ()
-    (setq-local indent-tabs-mode t)))
+  (add-hook 'squirrel-mode-hook #'my/squirrel-hook))
+
+(defun my/squirrel-hook ()
+  (setq-local indent-tabs-mode t))
 
 
 (use-package tidal
@@ -569,17 +563,15 @@
 
 (use-package web-mode
   :hook html-mode
-  :hook (web-mode . my/web-hook)
-
-  :custom
-  (web-mode-code-indent-offset 2)
-  (web-mode-css-indent-offset 2)
-  (web-mode-markup-comment-indent-offset 2)
-  (web-mode-markup-indent-offset 2)
-
   :config
-  (defun my/web-hook ()
-    (setq-local electric-indent-inhibit t)
-    (setq-local tab-width 2)
-    (electric-pair-local-mode -1)
-    (web-mode-set-engine "django")))
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-markup-comment-indent-offset 2)
+  (setq web-mode-markup-indent-offset 2))
+
+(defun my/web-hook ()
+  (setq-local electric-indent-inhibit t)
+  (setq-local tab-width 2)
+  (electric-pair-local-mode -1)
+  (web-mode-set-engine "django"))
+
