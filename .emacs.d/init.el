@@ -466,6 +466,10 @@
    ("M-p" . flymake-goto-prev-error)))
 
 
+(use-package idle-highlight-mode
+  :hook prog-mode)
+
+
 (use-package magit
   :bind
   (("C-x g"   . magit-status)
@@ -495,6 +499,13 @@
 ;;; languages
 
 (setq c-default-style "java")
+
+
+(use-package clojure-mode
+  :defer t)
+
+(use-package cider
+  :defer t)
 
 (defun my/emacs-lisp-hook ()
   (remove-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring t)
@@ -535,8 +546,7 @@
   (interactive)
   (cond ((use-region-p)
          (call-interactively 'python-indent-shift-right))
-        ((eq (current-indentation)
-             (- (line-end-position) (line-beginning-position)))
+        ((<= (current-column) (current-indentation))
          (call-interactively 'indent-for-tab-command))
         (t
          (call-interactively 'completion-at-point))))
