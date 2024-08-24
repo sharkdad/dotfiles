@@ -271,11 +271,14 @@
 (add-hook 'comint-output-filter-functions #'ansi-color-process-output)
 
 
-(setq compilation-message-face nil)
-(add-to-list
- 'compilation-error-regexp-alist-alist
- '(shadow-cljs "^-+ \\(ERROR\\|WARNING\\) .*?-+\n File: \\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\)" 2 3 4))
-(add-to-list 'compilation-error-regexp-alist 'shadow-cljs)
+(use-package compile
+  :ensure nil
+  :config
+  (setq compilation-message-face nil)
+  (add-to-list 'compilation-error-regexp-alist 'shadow-cljs)
+  (add-to-list
+   'compilation-error-regexp-alist-alist
+   '(shadow-cljs "^-+ \\(ERROR\\|WARNING\\) .*?-+\n File: \\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\)" 2 3 4)))
 
 
 (advice-add 'comint-term-environment :filter-return #'my/comint-env)
