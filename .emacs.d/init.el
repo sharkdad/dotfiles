@@ -271,6 +271,13 @@
 (add-hook 'comint-output-filter-functions #'ansi-color-process-output)
 
 
+(setq compilation-message-face nil)
+(add-to-list
+ 'compilation-error-regexp-alist-alist
+ '(shadow-cljs "^-+ \\(ERROR\\|WARNING\\) .*?-+\n File: \\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\)" 2 3 4))
+(add-to-list 'compilation-error-regexp-alist 'shadow-cljs)
+
+
 (advice-add 'comint-term-environment :filter-return #'my/comint-env)
 
 (defun my/comint-env (env)
@@ -505,7 +512,10 @@
   :defer t)
 
 (use-package cider
-  :defer t)
+  :defer t
+  :config
+  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
+
 
 (defun my/emacs-lisp-hook ()
   (remove-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring t)
