@@ -417,7 +417,7 @@
   (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position)
   (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
   (setq eldoc-echo-area-prefer-doc-buffer t)
-  (setq eldoc-echo-area-use-multiline-p nil))
+  (setq eldoc-echo-area-use-multiline-p t))
 
 (defun my/eldoc-box--at-point-position (w h)
   (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
@@ -514,10 +514,22 @@
 (use-package clojure-mode
   :defer t)
 
+(defun my/cider-eldoc-docstring (orig-fun &rest args)
+  (cl-destructuring-bind (thing pos eldoc-info) args
+    (when-let ((orig-eldoc (apply orig-fun args)))
+      (if-let ((docstring (lax-plist-get eldoc-info "docstring")))
+          (format "%s\n\n%s"
+                  orig-eldoc
+                  (cider-docstring--trim (cider-docstring--format docstring)))
+        orig-eldoc))))
+
 (use-package cider
   :defer t
   :config
-  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
+  (setq cider-eldoc-display-context-dependent-info t)
+  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode)
+  (advice-add 'cider-eldoc-format-function :around #'my/cider-eldoc-docstring)
+  (advice-add 'cider-eldoc-format-special-form :around #'my/cider-eldoc-docstring))
 
 
 (defun my/emacs-lisp-hook ()
