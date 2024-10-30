@@ -1,10 +1,27 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
+
 ;;; custom file
 
 (setq custom-safe-themes t)
 (setq custom-file (concat user-emacs-directory "custom.el"))
 (when (file-exists-p custom-file) (load custom-file))
+
+
+;;; frame
+
+(menu-bar-mode 0)
+(scroll-bar-mode 0)
+(set-fringe-mode (max 8 (frame-char-width)))
+(tool-bar-mode 0)
+
+(setq frame-resize-pixelwise t)
+
+(let ((frame (selected-frame)))
+  (select-frame-set-input-focus frame)
+  (let ((height (frame-height frame)))
+    (set-frame-parameter frame 'fullscreen nil)
+    (set-frame-height frame height)))
 
 
 ;;; package system
@@ -22,7 +39,6 @@
 ;;; ui, display
 
 (column-number-mode)
-(set-fringe-mode (max 8 (frame-char-width)))
 
 (global-hl-line-mode)
 (show-paren-mode)
@@ -38,9 +54,9 @@
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
 (setq switch-to-buffer-obey-display-actions t)
+(setq visible-bell t)
 (setq warning-minimum-level :error)
 
-(setq even-window-sizes nil)
 (setq split-window-preferred-function #'my/split-window-only-once)
 
 (defun my/split-window-only-once (window)

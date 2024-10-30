@@ -1,10 +1,3 @@
-(load-theme 'modus-vivendi t)
-
-(menu-bar-mode 0)
-(scroll-bar-mode 0)
-(tool-bar-mode 0)
-
-(setq frame-resize-pixelwise t)
-(setq visible-bell t)
-
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(add-to-list 'initial-frame-alist '(visibility . icon))
+(add-to-list 'initial-frame-alist '(fullscreen . fullheight))
+(add-to-list 'initial-frame-alist '(width . 120))
