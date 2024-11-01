@@ -78,6 +78,7 @@
       (select-window other))))
 
 (bind-keys ("C-c o" . my/move-to-other-window)
+           ("C-c q" . quit-window)
            ("C-c w b" . balance-windows)
            ("C-c w m" . maximize-window)
            :repeat-map my/move-to-other-window-repeat-map
@@ -101,7 +102,7 @@
 (electric-pair-mode)
 (global-auto-revert-mode)
 (global-goto-address-mode)
-(global-superword-mode)
+(global-subword-mode)
 (repeat-mode)
 
 (setq bookmark-save-flag 1)
@@ -417,35 +418,16 @@
     (apply orig-fun args)))
 
 
-(use-package devdocs
-  :commands devdocs-install
-  :bind
-  (("C-h D" . devdocs-lookup)))
-
-
-(use-package eldoc-box
-  :delight (eldoc-box-hover-at-point-mode)
-  :hook (eldoc-mode . eldoc-box-hover-at-point-mode)
+(use-package eldoc
+  :ensure nil
+  :delight
   :bind
   (("C-h ." . eldoc-doc-buffer))
 
   :config
-  (setq eldoc-box-at-point-position-function #'my/eldoc-box--at-point-position)
   (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
   (setq eldoc-echo-area-prefer-doc-buffer t)
-  (setq eldoc-echo-area-use-multiline-p t))
-
-(defun my/eldoc-box--at-point-position (w h)
-  (let* ((window-l (nth 0 (window-absolute-pixel-edges)))
-         (window-r (nth 2 (window-absolute-pixel-edges)))
-         (frame-l (nth 0 (frame-edges)))
-         (frame-r (nth 2 (frame-edges)))
-         (distance-l (- window-l frame-l))
-         (distance-r (- frame-r window-r))
-         (at-point-pos (eldoc-box--default-at-point-position-function w h)))
-    (cond ((>= distance-l w) (cons (- window-l w) (cdr at-point-pos)))
-          ((>= distance-r w) (cons window-r (cdr at-point-pos)))
-          (t at-point-pos))))
+  (setq eldoc-echo-area-use-multiline-p 6))
 
 
 (use-package eglot
@@ -463,12 +445,7 @@
   (setq eglot-workspace-configuration
         '((:python\.analysis . (:diagnosticMode "workspace"))))
 
-  (add-to-list 'eglot-server-programs '(glsl-ts-mode . ("glsl_analyzer")))
-  (add-hook 'eglot-managed-mode-hook #'my/eglot-hook))
-
-(defun my/eglot-hook ()
-  (remove-hook 'eldoc-documentation-functions #'flymake-eldoc-function t)
-  (add-hook 'eldoc-documentation-functions #'flymake-eldoc-function nil t))
+  (add-to-list 'eglot-server-programs '(glsl-ts-mode . ("glsl_analyzer"))))
 
 (defun my/eglot-organize-imports ()
   (interactive)
@@ -546,13 +523,6 @@
   (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode)
   (advice-add 'cider-eldoc-format-function :around #'my/cider-eldoc-docstring)
   (advice-add 'cider-eldoc-format-special-form :around #'my/cider-eldoc-docstring))
-
-
-(defun my/emacs-lisp-hook ()
-  (remove-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring t)
-  (add-hook 'eldoc-documentation-functions #'elisp-eldoc-var-docstring-with-value nil t))
-
-(add-hook 'emacs-lisp-mode-hook #'my/emacs-lisp-hook)
 
 
 (setq go-ts-mode-indent-offset tab-width)
