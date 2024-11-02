@@ -48,21 +48,21 @@
 
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
-(setq display-buffer-alist
-      '((t (display-buffer-reuse-window display-buffer-in-previous-window))))
-(setq help-window-select t)
+(setq display-buffer-base-action '((display-buffer-same-window
+                                    display-buffer-reuse-window
+                                    display-buffer-in-previous-window
+                                    display-buffer-use-some-window)))
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
+(setq split-height-threshold nil)
 (setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 (setq warning-minimum-level :error)
 
-(setq split-window-preferred-function #'my/split-window-only-once)
+(defun my/split-window-filter-args (args)
+  (cl-substitute 'left t args :start 2 :end 3))
 
-(defun my/split-window-only-once (window)
-  (let* ((lru (get-lru-window nil nil nil t))
-         (mru (get-mru-window nil nil nil t)))
-    (when (eq lru mru) (split-window-sensibly window))))
+(advice-add 'split-window :filter-args #'my/split-window-filter-args)
 
 (winner-mode t)
 (bind-keys ("C-<tab>"         . winner-undo)
@@ -74,8 +74,7 @@
          (buffer (current-buffer))
          (other (display-buffer buffer t)))
     (when other
-      (quit-window nil window)
-      (select-window other))))
+      (quit-window))))
 
 (bind-keys ("C-c o" . my/move-to-other-window)
            ("C-c q" . quit-window)
@@ -484,6 +483,7 @@
    ("RET"     . magit-diff-visit-file-other-window))
 
   :config
+  (setq magit-commit-diff-inhibit-same-window t)
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist '((stashes . hide)
                                                  (file . hide))))
