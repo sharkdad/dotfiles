@@ -213,13 +213,12 @@
   :demand
   :bind
   (:map corfu-map
-        ("RET" . nil)
         ("C-;" . corfu-quick-jump))
 
   :config
   (setq corfu-auto t)
   (setq corfu-auto-prefix 2)
-  (setq corfu-count 20)
+  (setq corfu-count 10)
   (setq corfu-popupinfo-delay 0.5)
   (setq corfu-preselect 'first)
   (setq corfu-preview-current nil)
