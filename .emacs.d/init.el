@@ -506,22 +506,11 @@
 (use-package clojure-mode
   :defer t)
 
-(defun my/cider-eldoc-docstring (orig-fun &rest args)
-  (cl-destructuring-bind (thing pos eldoc-info) args
-    (when-let ((orig-eldoc (apply orig-fun args)))
-      (if-let ((docstring (lax-plist-get eldoc-info "docstring")))
-          (format "%s\n\n%s"
-                  orig-eldoc
-                  (cider-docstring--trim (cider-docstring--format docstring)))
-        orig-eldoc))))
-
 (use-package cider
   :defer t
   :config
   (setq cider-eldoc-display-context-dependent-info t)
-  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode)
-  (advice-add 'cider-eldoc-format-function :around #'my/cider-eldoc-docstring)
-  (advice-add 'cider-eldoc-format-special-form :around #'my/cider-eldoc-docstring))
+  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
 
 
 (setq go-ts-mode-indent-offset tab-width)
