@@ -216,19 +216,21 @@
         ("C-;" . corfu-quick-jump))
 
   :config
-  (setq corfu-auto t)
-  (setq corfu-auto-prefix 2)
-  (setq corfu-count 10)
-  (setq corfu-popupinfo-delay 0.5)
-  (setq corfu-preselect 'first)
+  (setq corfu-quit-at-boundary nil)
+  (setq corfu-quit-no-match nil)
   (setq corfu-preview-current nil)
-
   (global-corfu-mode)
 
   (corfu-history-mode)
   (add-to-list 'savehist-additional-variables 'corfu-history)
 
+  (setq corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-mode))
+
+(use-package corfu-candidate-overlay
+  :after corfu
+  :config
+  (corfu-candidate-overlay-mode))
 
 
 (use-package embark
@@ -253,6 +255,9 @@
   (setq completion-category-defaults nil)
   (setq completion-category-overrides '((file (styles partial-completion))
                                         (eglot (styles orderless basic)))))
+
+
+(use-package pcmpl-args)
 
 
 (use-package vertico
