@@ -27,8 +27,9 @@
 ;;; package system
 
 (require 'package)
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa"  . "https://elpa.gnu.org/packages/")))
+(setq package-archives '(("melpa"  . "https://melpa.org/packages/")
+                         ("elpa"   . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 (package-initialize)
 (unless package-archive-contents (package-refresh-contents))
 
@@ -280,31 +281,10 @@
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
-(setq ansi-color-for-comint-mode t)
 (setq comint-input-ring-size history-length)
-(setq comint-prompt-read-only t)
-(setq comint-terminfo-terminal "dumb-emacs-ansi")
 (setq shell-command-prompt-show-cwd t)
 
 (setq-default comint-scroll-to-bottom-on-input t)
-
-(add-hook 'comint-output-filter-functions #'ansi-color-process-output)
-
-
-(use-package compile
-  :ensure nil
-  :config
-  (setq compilation-message-face nil)
-  (add-to-list 'compilation-error-regexp-alist 'shadow-cljs)
-  (add-to-list
-   'compilation-error-regexp-alist-alist
-   '(shadow-cljs "^-+ \\(ERROR\\|WARNING\\) .*?-+\n File: \\([^:]+\\):\\([0-9]+\\):\\([0-9]+\\)" 2 3 4)))
-
-
-(advice-add 'comint-term-environment :filter-return #'my/comint-env)
-
-(defun my/comint-env (env)
-  (nconc (list "PAGER=cat" "COLORTERM=truecolor") env))
 
 
 (defvar-local my/comint-history-variable nil)
@@ -326,28 +306,17 @@
     (add-to-history my/comint-history-variable (substring-no-properties cmd))))
 
 
-(add-hook 'shell-mode-hook #'compilation-shell-minor-mode)
-(add-hook 'shell-mode-hook #'my/comint-history-setup)
-(add-hook 'shell-mode-hook #'my/shell-hook)
-
-(defun my/shell-hook ()
-  (setq-local comint-process-echoes t))
-
-
-
-(defun my/term-default ()
-  (interactive)
-  (term shell-file-name))
-
-(bind-keys ("C-c s" . shell)
-           ("C-c t" . my/term-default))
+(use-package eat
+  :config
+  (setq eat-term-name "xterm-256color")
+  (eat-eshell-mode)
+  (setq eshell-visual-commands '()))
 
 
 (require 'dired-x)
 (setq dired-dwim-target t)
 (setq dired-kill-when-opening-new-dired-buffer t)
 (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$"))
-(add-hook 'dired-mode-hook #'dired-omit-mode)
 
 
 (setq eww-auto-rename-buffer 'title)
