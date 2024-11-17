@@ -272,7 +272,6 @@
         ("C-;"   . vertico-quick-jump))
 
   :config
-  (setq vertico-count (/ (window-total-height) 2))
   (vertico-mode))
 
 
