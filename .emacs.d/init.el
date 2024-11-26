@@ -1,30 +1,7 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
 
-;;; custom file
-
-(setq custom-safe-themes t)
-(setq custom-file (concat user-emacs-directory "custom.el"))
-(when (file-exists-p custom-file) (load custom-file))
-
-
-;;; frame
-
-(menu-bar-mode 0)
-(scroll-bar-mode 0)
-(set-fringe-mode (max 8 (frame-char-width)))
-(tool-bar-mode 0)
-
-(setq frame-resize-pixelwise t)
-
-(let ((frame (selected-frame)))
-  (select-frame-set-input-focus frame)
-  (let ((height (frame-height frame)))
-    (set-frame-parameter frame 'fullscreen nil)
-    (set-frame-height frame height)))
-
-
-;;; package system
+;;; package system, compilation
 
 (require 'package)
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
@@ -32,17 +9,35 @@
                          ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 (package-initialize)
 (unless package-archive-contents (package-refresh-contents))
-
 (require 'use-package-ensure)
 (setq use-package-always-ensure t)
+
+(use-package compile-angel
+  :demand
+  :config
+  (compile-angel-on-load-mode)
+  (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))
+
+
+;;; custom file
+
+(setq custom-safe-themes t)
+(setq custom-file (concat user-emacs-directory "custom.el"))
+(when (file-exists-p custom-file) (load custom-file))
 
 
 ;;; ui, display
 
+(blink-cursor-mode -1)
+
 (column-number-mode)
 
 (global-hl-line-mode)
+
 (show-paren-mode)
+(setq show-paren-when-point-inside-paren t
+      show-paren-when-point-in-periphery t)
+(setq blink-matching-paren nil)
 
 (defun my/prog-hook ()
   (setq-local show-trailing-whitespace t))
@@ -53,12 +48,19 @@
                                     display-buffer-reuse-window
                                     display-buffer-in-previous-window
                                     display-buffer-use-some-window)))
+
+(setq initial-major-mode 'fundamental-mode
+      initial-scratch-message nil)
+
+(setq ad-redefinition-action 'accept)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
+(setq scroll-conservatively 10)
 (setq split-height-threshold nil)
 (setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 (setq warning-minimum-level :error)
+(setq warning-suppress-types '((lexical-binding)))
 
 (defun my/split-window-filter-args (args)
   (cl-substitute 'left t args :start 2 :end 3))
@@ -87,6 +89,8 @@
 (use-package delight)
 (use-package ef-themes)
 (use-package mode-line-bell :config (mode-line-bell-mode))
+
+(setq rainbow-delimiters-max-face-count 5)
 (use-package rainbow-delimiters :hook prog-mode)
 
 (use-package which-key
@@ -106,6 +110,7 @@
 (repeat-mode)
 
 (setq bookmark-save-flag 1)
+(setq ffap-machine-p-known 'reject)
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
 (setq set-mark-command-repeat-pop t)
@@ -122,6 +127,7 @@
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
 
+(setq auto-save-include-big-deletions t)
 (setq auto-save-timeout 5)
 (setq make-backup-files nil)
 (setq kill-buffer-delete-auto-save-files t)
@@ -258,7 +264,8 @@
                                         (eglot (styles orderless basic)))))
 
 
-(use-package pcmpl-args)
+(use-package pcmpl-args
+  :defer t)
 
 
 (use-package vertico
@@ -305,17 +312,25 @@
     (add-to-history my/comint-history-variable (substring-no-properties cmd))))
 
 
-(use-package eat
+(use-package dired
+  :ensure nil
+  :defer t
   :config
+  (require 'dired-x)
+  (setq dired-dwim-target t)
+  (setq dired-kill-when-opening-new-dired-buffer t)
+  (setq dired-omit-files (concat dired-omit-files "\\|^\\..+$"))
+  (setq dired-clean-confirm-killing-deleted-buffers nil
+        dired-recursive-copies 'always
+        dired-create-destination-dirs 'ask))
+
+
+(use-package eat
+  :hook (eshell-load . eat-eshell-mode)
+  :config
+  (require 'pcmpl-args)
   (setq eat-term-name "xterm-256color")
-  (eat-eshell-mode)
   (setq eshell-visual-commands '()))
-
-
-(require 'dired-x)
-(setq dired-dwim-target t)
-(setq dired-kill-when-opening-new-dired-buffer t)
-(setq dired-omit-files (concat dired-omit-files "\\|^\\..+$"))
 
 
 (setq eww-auto-rename-buffer 'title)
@@ -406,6 +421,8 @@
   :hook (python-base-mode . eglot-ensure)
 
   :config
+  (fset #'jsonrpc--log-event #'ignore)
+  (setq jsonrpc-event-hook nil)
   (setq eglot-autoshutdown t)
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
@@ -505,7 +522,11 @@
         ("TAB"       . my/python-indent-for-tab-command)
         ("<backtab>" . python-indent-shift-left))
   :config
+  (setq python-indent-guess-indent-offset-verbose nil)
+
   (add-hook 'inferior-python-mode-hook #'my/comint-history-setup)
+
+  (add-hook 'python-base-mode-hook #'pet-mode -10)
   (add-hook 'python-base-mode-hook #'my/python-hook)
 
   (add-to-list 'python-indent-trigger-commands
@@ -525,9 +546,8 @@
 
 
 (use-package pet
-  :delight
-  :init
-  (add-hook 'python-base-mode-hook 'pet-mode -10))
+  :commands pet-mode
+  :delight)
 
 
 (use-package squirrel-mode
