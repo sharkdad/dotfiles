@@ -4,12 +4,13 @@
 ;;; package system, compilation
 
 (require 'package)
+(require 'use-package-ensure)
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
                          ("elpa"   . "https://elpa.gnu.org/packages/")
                          ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
 (package-initialize)
 (unless package-archive-contents (package-refresh-contents))
-(require 'use-package-ensure)
+(setq use-package-always-demand t)
 (setq use-package-always-ensure t)
 
 (use-package compile-angel
@@ -225,7 +226,7 @@
 
 
 (use-package corfu
-  :demand
+  :demand t
   :bind
   (:map corfu-map
         ("C-;" . corfu-quick-jump))
@@ -272,12 +273,11 @@
                                         (eglot (styles orderless basic)))))
 
 
-(use-package pcmpl-args
-  :defer t)
+(use-package pcmpl-args)
 
 
 (use-package vertico
-  :demand
+  :demand t
   :hook (rfn-eshadow-update-overlay . vertico-directory-tidy)
   :bind
   (:map vertico-map
@@ -322,7 +322,6 @@
 
 (use-package dired
   :ensure nil
-  :defer t
   :config
   (require 'dired-x)
   (setq dired-dwim-target t)
@@ -501,11 +500,9 @@
 (setq c-default-style "java")
 
 
-(use-package clojure-mode
-  :defer t)
+(use-package clojure-mode)
 
 (use-package cider
-  :defer t
   :config
   (setq cider-eldoc-display-context-dependent-info t)
   (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
@@ -554,7 +551,6 @@
 
 
 (use-package pet
-  :commands pet-mode
   :delight)
 
 
@@ -568,6 +564,7 @@
 
 
 (use-package tidal
+  :defer t
   :mode "\\.tidal\\'")
 
 
