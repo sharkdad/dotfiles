@@ -34,6 +34,8 @@
 
 (global-hl-line-mode)
 
+(set-fringe-mode (max 8 (frame-char-width)))
+
 (show-paren-mode)
 (setq show-paren-when-point-inside-paren t
       show-paren-when-point-in-periphery t)
@@ -44,28 +46,34 @@
 
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
+(defun my/display-buffer-in-margin-window (buffer alist)
+  (when (< 250 (frame-width))
+    (display-buffer-in-side-window buffer alist)))
+
+(add-to-list 'display-buffer-alist
+             `(,(rx (| "*eldoc" "*Help" "*info"))
+               (my/display-buffer-in-margin-window)
+               (side . left)
+               (window-width . 82)
+               (window-parameters
+                (no-delete-other-windows . t))))
+
 (setq display-buffer-base-action '((display-buffer-same-window
                                     display-buffer-reuse-window
                                     display-buffer-in-previous-window
                                     display-buffer-use-some-window)))
 
-(setq initial-major-mode 'fundamental-mode
-      initial-scratch-message nil)
-
 (setq ad-redefinition-action 'accept)
+(setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
 (setq scroll-conservatively 10)
 (setq split-height-threshold nil)
+(setq split-width-threshold nil)
 (setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 (setq warning-minimum-level :error)
 (setq warning-suppress-types '((lexical-binding)))
-
-(defun my/split-window-filter-args (args)
-  (cl-substitute 'left t args :start 2 :end 3))
-
-(advice-add 'split-window :filter-args #'my/split-window-filter-args)
 
 (winner-mode t)
 (bind-keys ("C-<tab>"         . winner-undo)

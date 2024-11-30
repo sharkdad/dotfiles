@@ -49,18 +49,8 @@
 
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
-(set-fringe-mode (max 8 (frame-char-width)))
 (tool-bar-mode 0)
 
-(add-hook 'emacs-startup-hook
-          (lambda ()
-            (let ((frame (selected-frame)))
-              (let ((height (frame-height frame)))
-                (set-frame-parameter frame 'fullscreen nil)
-                (set-frame-height frame height)))))
-
-
-(add-to-list 'initial-frame-alist '(fullscreen . fullheight))
-(add-to-list 'initial-frame-alist '(width . 150))
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 
 (load-theme 'modus-vivendi t)
