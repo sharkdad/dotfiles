@@ -76,9 +76,13 @@
 (setq warning-minimum-level :error)
 (setq warning-suppress-types '((lexical-binding)))
 
-(winner-mode t)
-(bind-keys ("C-<tab>"         . winner-undo)
-           ("C-<iso-lefttab>" . winner-redo))
+(use-package winner
+  :ensure nil
+  :bind
+  (("C-<tab>"         . winner-undo)
+   ("C-<iso-lefttab>" . winner-redo))
+  :config
+  (winner-mode))
 
 (defun my/move-to-other-window ()
   (interactive)
@@ -505,6 +509,7 @@
 (use-package cider
   :config
   (setq cider-eldoc-display-context-dependent-info t)
+  (setq cider-enable-nrepl-jvmti-agent t)
   (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
 
 
