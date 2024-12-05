@@ -57,7 +57,8 @@
                (side . left)
                (window-width . 82)
                (window-parameters
-                (no-delete-other-windows . t))))
+                (no-delete-other-windows . t)
+                (no-other-window . t))))
 
 (setq display-buffer-base-action '((display-buffer-same-window
                                     display-buffer-reuse-window
