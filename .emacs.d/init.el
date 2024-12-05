@@ -126,6 +126,7 @@
 (setq ffap-machine-p-known 'reject)
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier 'super)
+(setq save-interprogram-paste-before-kill 4096)
 (setq set-mark-command-repeat-pop t)
 (setq use-short-answers t)
 (setq vc-follow-symlinks t)
