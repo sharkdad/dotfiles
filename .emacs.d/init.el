@@ -511,8 +511,7 @@
 (use-package cider
   :config
   (setq cider-eldoc-display-context-dependent-info t)
-  (setq cider-enable-nrepl-jvmti-agent t)
-  (add-hook 'cider-repl-mode-hook #'compilation-shell-minor-mode))
+  (setq cider-enable-nrepl-jvmti-agent t))
 
 
 (setq go-ts-mode-indent-offset tab-width)
