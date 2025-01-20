@@ -510,6 +510,7 @@
 
 (use-package cider
   :config
+  (setq cider-clojure-cli-aliases ":dev:test")
   (setq cider-eldoc-display-context-dependent-info t)
   (setq cider-enable-nrepl-jvmti-agent t))
 
