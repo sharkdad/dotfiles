@@ -230,6 +230,11 @@
    consult--source-recent-file consult--source-project-recent-file
    :preview-key "M-."))
 
+(use-package consult-eglot
+  :after consult
+  :bind
+  ("M-g s" . consult-eglot-symbols))
+
 
 (use-package corfu
   :demand t
