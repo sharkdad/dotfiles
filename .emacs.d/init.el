@@ -233,13 +233,22 @@
 
 (use-package corfu
   :demand t
-  :bind
-  (:map corfu-map
-        ("C-;" . corfu-quick-jump))
-
   :config
-  (setq corfu-quit-at-boundary nil)
-  (setq corfu-quit-no-match nil)
+  (setq corfu-map
+        (define-keymap
+          "<remap> <completion-at-point>" #'corfu-complete
+          "<remap> <keyboard-escape-quit>" #'corfu-reset
+          "M-n" #'corfu-next
+          "M-p" #'corfu-previous
+          "C-g" #'corfu-quit
+          "TAB" #'corfu-complete
+          "M-g" #'corfu-info-location
+          "M-h" #'corfu-info-documentation
+          "M-SPC" #'corfu-insert-separator
+          "C-M-;" #'corfu-quick-jump))
+
+  (setq corfu-auto t)
+  (setq corfu-preselect 'first)
   (setq corfu-preview-current nil)
   (global-corfu-mode)
 
