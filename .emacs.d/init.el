@@ -1,7 +1,7 @@
 ;;; init.el -*- lexical-binding: t; -*-
 
 
-;;; package system, compilation
+;;; package system
 
 (require 'package)
 (require 'use-package-ensure)
@@ -12,12 +12,6 @@
 (unless package-archive-contents (package-refresh-contents))
 (setq use-package-always-demand t)
 (setq use-package-always-ensure t)
-
-(use-package compile-angel
-  :demand
-  :config
-  (compile-angel-on-load-mode)
-  (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))
 
 
 ;;; custom file
@@ -47,23 +41,18 @@
 
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
-(defun my/display-buffer-in-margin-window (buffer alist)
-  (when (< 250 (frame-width))
-    (display-buffer-in-side-window buffer alist)))
-
 (add-to-list 'display-buffer-alist
              `(,(rx (| "*eldoc" "*Help" "*info"))
-               (my/display-buffer-in-margin-window)
+               (display-buffer-in-side-window)
                (side . left)
-               (window-width . 82)
-               (window-parameters
-                (no-delete-other-windows . t)
-                (no-other-window . t))))
+               (slot . 0)
+               (window-width . 82)))
 
-(setq display-buffer-base-action '((display-buffer-same-window
-                                    display-buffer-reuse-window
-                                    display-buffer-in-previous-window
-                                    display-buffer-use-some-window)))
+(setq display-buffer-base-action
+      '((display-buffer-reuse-window
+         display-buffer-in-previous-window
+         display-buffer-same-window
+         display-buffer-use-some-window)))
 
 (setq ad-redefinition-action 'accept)
 (setq help-window-select t)
@@ -262,11 +251,6 @@
 
   (setq corfu-popupinfo-delay 0.5)
   (corfu-popupinfo-mode))
-
-(use-package corfu-candidate-overlay
-  :after corfu
-  :config
-  (corfu-candidate-overlay-mode))
 
 
 (use-package embark
@@ -482,10 +466,6 @@
    :map prog-mode-map
    ("M-n" . flymake-goto-next-error)
    ("M-p" . flymake-goto-prev-error)))
-
-
-(use-package idle-highlight-mode
-  :hook prog-mode)
 
 
 (use-package magit
