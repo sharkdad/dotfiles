@@ -29,7 +29,7 @@
 
 (global-hl-line-mode)
 
-(set-fringe-mode (max 8 (frame-char-width)))
+(set-fringe-mode (frame-char-width))
 
 (show-paren-mode)
 (setq show-paren-when-point-inside-paren t
@@ -41,27 +41,31 @@
 
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
-(add-to-list 'display-buffer-alist
-             `(,(rx (| "*eldoc" "*Help" "*info"))
-               (display-buffer-in-side-window)
-               (side . left)
-               (slot . 0)
-               (window-width . 82)))
+(defun my/window-resize-golden (&optional window)
+  (interactive)
+  (let* ((window (window-normalize-window window))
+         (parent (window-parent window))
+         (horiz (window-left-child parent))
+         (parent-size (window-size parent horiz))
+         (curr-size (window-size window horiz))
+         (min-size (if horiz window-min-width window-min-height))
+         (max-size (- parent-size min-size))
+         (new-size (min max-size (* 2 (/ parent-size 3)))))
+    (window-resize window (- new-size curr-size) horiz)))
 
-(setq display-buffer-base-action
+(setq display-buffer-overriding-action
       '((display-buffer-reuse-window
-         display-buffer-in-previous-window
-         display-buffer-same-window
-         display-buffer-use-some-window)))
+         display-buffer-in-previous-window)))
+(setq display-buffer-base-action
+      '((display-buffer-use-some-window)))
+(setq even-window-sizes nil)
+(setq switch-to-buffer-obey-display-actions t)
 
 (setq ad-redefinition-action 'accept)
 (setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
 (setq scroll-conservatively 10)
-(setq split-height-threshold nil)
-(setq split-width-threshold nil)
-(setq switch-to-buffer-obey-display-actions t)
 (setq visible-bell t)
 (setq warning-minimum-level :error)
 (setq warning-suppress-types '((lexical-binding)))
@@ -76,16 +80,15 @@
 
 (defun my/move-to-other-window ()
   (interactive)
-  (let* ((window (selected-window))
-         (buffer (current-buffer))
+  (let* ((buffer (current-buffer))
          (other (display-buffer buffer t)))
-    (when other
-      (quit-window))))
+    (switch-to-prev-buffer nil t)
+    (select-window other)))
 
 (bind-keys ("C-c o" . my/move-to-other-window)
-           ("C-c q" . quit-window)
-           ("C-c w b" . balance-windows)
-           ("C-c w m" . maximize-window)
+           ("C-x w b" . balance-windows)
+           ("C-x w g" . my/window-resize-golden)
+           ("C-x w m" . toggle-frame-maximized)
            :repeat-map my/move-to-other-window-repeat-map
            ("o"     . my/move-to-other-window))
 
@@ -100,7 +103,6 @@
   :delight
   :config
   (setq which-key-idle-delay 0.5)
-  (which-key-setup-minibuffer)
   (which-key-mode))
 
 
@@ -391,6 +393,8 @@
 
 ;;; dev
 
+(setq project-vc-extra-root-markers '("package-lock.json" ".venv"))
+
 (use-package dape
   :bind
   (("C-c d d" . dape))
@@ -479,7 +483,6 @@
    ("RET"     . magit-diff-visit-file-other-window))
 
   :config
-  (setq magit-commit-diff-inhibit-same-window t)
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist '((stashes . hide)
                                                  (file . hide))))

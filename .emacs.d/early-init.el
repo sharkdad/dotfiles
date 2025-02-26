@@ -42,7 +42,8 @@
 (setq frame-resize-pixelwise t)
 (setq window-divider-default-bottom-width 1
       window-divider-default-places t
-      window-divider-default-right-width 1)
+      window-divider-default-right-width 1
+      window-min-width 82)
 
 (setq frame-title-format "%b – GNU Emacs"
       icon-title-format "%b – GNU Emacs")
