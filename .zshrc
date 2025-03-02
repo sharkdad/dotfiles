@@ -19,3 +19,6 @@ bindkey -e
 zstyle :compinstall filename '$HOME/.zshrc'
 autoload -Uz compinit
 compinit
+
+[ -n "$EAT_SHELL_INTEGRATION_DIR" ] && \
+  source "$EAT_SHELL_INTEGRATION_DIR/zsh"

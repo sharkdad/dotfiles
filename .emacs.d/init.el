@@ -127,6 +127,8 @@
 
 (setq kill-whole-line t)
 (setq line-move-visual nil)
+(setq truncate-lines nil)
+(setq truncate-partial-width-windows nil)
 (setq-default word-wrap t)
 
 (setq tab-always-indent 'complete)
@@ -340,9 +342,11 @@
 
 (use-package eat
   :hook (eshell-load . eat-eshell-mode)
+  :bind
+  (("C-x p t" . eat-project))
   :config
   (require 'pcmpl-args)
-  (setq eat-term-name "xterm-256color")
+  (setq eat-enable-auto-line-mode t)
   (setq eshell-visual-commands '()))
 
 
@@ -371,6 +375,7 @@
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time)
+  (setq org-startup-truncated nil)
   (setq org-tag-alist '(("fun" . ?f)))
 
   (add-to-list 'org-modules 'org-habit t))
