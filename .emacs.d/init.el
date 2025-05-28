@@ -212,6 +212,8 @@
   (setq register-preview-function #'consult-register-format)
   (advice-add #'register-preview :override #'consult-register-window)
 
+  (setq text-mode-ispell-word-completion nil)
+
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
 
@@ -360,13 +362,8 @@
   (("C-c a" . org-agenda))
 
   :config
-  (setq org-agenda-custom-commands
-   '(("d" "dashboard" ((tags-todo "CATEGORY=\"inbox\"")
-                       (agenda "")))
-     ("b" "backlog" tags-todo "-fun")
-     ("f" "fun" tags-todo "fun")))
   (setq org-agenda-dim-blocked-tasks 'invisible)
-  (setq org-agenda-files '("~/sync/org/"))
+  (setq org-agenda-files '("~/sync/org/todo.org"))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-tags-todo-honor-ignore-options t)
   (setq org-agenda-todo-ignore-deadlines 'all)
@@ -376,7 +373,6 @@
   (setq org-enforce-todo-checkbox-dependencies t)
   (setq org-log-done 'time)
   (setq org-startup-truncated nil)
-  (setq org-tag-alist '(("fun" . ?f)))
 
   (add-to-list 'org-modules 'org-habit t))
 
@@ -408,20 +404,11 @@
   (setq dape-key-prefix "\C-cd")
 
   :config
+  (setq dape-buffer-window-arrangement nil)
   (setq dape-info-hide-mode-line nil)
+  (setq dape-repl-echo-shell-output t)
   (remove-hook 'dape-on-start-hooks #'dape-info)
-  (remove-hook 'dape-on-start-hooks #'dape-repl)
-  (add-hook 'dape-on-start-hooks #'save-some-buffers)
-  (add-hook 'dape-on-stopped-hooks #'dape-info)
-  (advice-add 'dape--display-buffer :around #'my/dape-fix-display-buffer))
-
-(defun my/dape-fix-display-buffer (orig-fun &rest args)
-  (let ((display-buffer-alist `(((derived-mode . dape-info-parent-mode)
-                                 (display-buffer-in-side-window)
-                                 (side . bottom)
-                                 (window-parameters
-                                  (no-other-window . t))))))
-    (apply orig-fun args)))
+  (add-hook 'dape-on-start-hooks #'save-some-buffers))
 
 
 (use-package eldoc

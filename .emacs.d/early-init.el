@@ -13,6 +13,7 @@
 
 (setq package-native-compile t)
 
+(setq native-comp-async-jobs-number 2)
 (setq native-comp-async-report-warnings-errors 'silent)
 (setq native-comp-warning-on-missing-source nil)
 
