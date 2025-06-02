@@ -427,6 +427,11 @@
   :hook (go-ts-mode       . eglot-ensure)
   :hook (python-base-mode . eglot-ensure)
 
+  :bind
+  (("C-c c d" . eglot-find-declaration)
+   ("C-c c t" . eglot-find-typeDefinition)
+   ("C-c c r" . eglot-rename))
+
   :config
   (fset #'jsonrpc--log-event #'ignore)
   (setq jsonrpc-event-hook nil)
