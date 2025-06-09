@@ -140,7 +140,11 @@
 (setq make-backup-files nil)
 (setq kill-buffer-delete-auto-save-files t)
 
-(bind-keys ("C-x k"   . kill-current-buffer)
+(defun my/quit-and-kill-window ()
+  (interactive)
+  (quit-window t))
+
+(bind-keys ("C-x k"   . my/quit-and-kill-window)
            ("C-x C-b" . ibuffer))
 
 (use-package avy
@@ -408,7 +412,18 @@
   (setq dape-info-hide-mode-line nil)
   (setq dape-repl-echo-shell-output t)
   (remove-hook 'dape-on-start-hooks #'dape-info)
-  (add-hook 'dape-on-start-hooks #'save-some-buffers))
+  (add-hook 'dape-on-start-hooks #'save-some-buffers)
+  (add-hook 'dape-repl-mode-hook #'compilation-shell-minor-mode))
+
+
+(use-package dash-docs
+  :config
+  (setq dash-docs-browser-func 'eww))
+
+(use-package consult-dash
+  :bind (("M-s d" . consult-dash))
+  :config
+  (consult-customize consult-dash :initial (thing-at-point 'symbol)))
 
 
 (use-package eldoc
