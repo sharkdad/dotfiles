@@ -53,6 +53,8 @@
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
 
-(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+(setq initial-frame-alist (append initial-frame-alist
+                                  '((fullscreen . maximized)
+                                    (undecorated . t))))
 
 (load-theme 'modus-vivendi t)
