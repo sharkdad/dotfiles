@@ -150,7 +150,7 @@
 (use-package avy
   :bind
   (("C-;" . avy-goto-line)
-   ("C-'" . avy-goto-char-2)))
+   ("C-'" . avy-goto-whitespace-end)))
 
 (use-package expand-region
   :bind
@@ -266,7 +266,7 @@
 (use-package embark
   :bind
   (("C-." . embark-act)
-   ("M-." . embark-dwim)
+   ;; ("M-." . embark-dwim)
    ("C-h B" . embark-bindings)))
 
 
@@ -309,11 +309,20 @@
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
+(setq ansi-color-for-comint-mode t)
+(add-hook 'comint-output-filter-functions #'ansi-color-process-output)
+
 (setq comint-input-ring-size history-length)
+(setq comint-process-echoes t)
+(setq comint-prompt-read-only t)
+(setq comint-scroll-to-bottom-on-input t)
+(setq comint-terminfo-terminal "dumb-emacs-ansi")
+
 (setq shell-command-prompt-show-cwd t)
 
-(setq-default comint-scroll-to-bottom-on-input t)
+(add-hook 'shell-mode-hook #'compilation-shell-minor-mode)
 
+(bind-keys ("C-c s" . shell))
 
 (defvar-local my/comint-history-variable nil)
 (advice-add 'comint-add-to-input-history :after-while #'my/comint-add-history)
@@ -366,6 +375,8 @@
   (("C-c a" . org-agenda))
 
   :config
+  (keymap-unset org-mode-map "C-'")
+
   (setq org-agenda-dim-blocked-tasks 'invisible)
   (setq org-agenda-files '("~/sync/org/todo.org"))
   (setq org-agenda-start-on-weekday nil)
@@ -535,6 +546,8 @@
 (use-package markdown-mode
   :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
+
+(setenv "PYTHONUNBUFFERED" "1")
 
 (use-package python
   :ensure nil
