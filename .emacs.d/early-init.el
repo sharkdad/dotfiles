@@ -46,15 +46,11 @@
       window-divider-default-right-width 1
       window-min-width 82)
 
-(setq frame-title-format "%b – GNU Emacs"
-      icon-title-format "%b – GNU Emacs")
+(setq frame-title-format "%b"
+      icon-title-format "%b")
 
 (menu-bar-mode 0)
 (scroll-bar-mode 0)
 (tool-bar-mode 0)
-
-(setq initial-frame-alist (append initial-frame-alist
-                                  '((fullscreen . maximized)
-                                    (undecorated . t))))
 
 (load-theme 'modus-vivendi t)

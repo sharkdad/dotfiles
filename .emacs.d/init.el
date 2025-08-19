@@ -1,3 +1,4 @@
+
 ;;; init.el -*- lexical-binding: t; -*-
 
 
@@ -54,10 +55,10 @@
     (window-resize window (- new-size curr-size) horiz)))
 
 (setq display-buffer-overriding-action
-      '((display-buffer-reuse-window
-         display-buffer-in-previous-window)))
+      '((display-buffer-reuse-window display-buffer-in-previous-window)
+        (reusable-frames . t)))
 (setq display-buffer-base-action
-      '((display-buffer-use-some-window)))
+      '((display-buffer-use-some-frame display-buffer-use-some-window)))
 (setq even-window-sizes nil)
 (setq switch-to-buffer-obey-display-actions t)
 
@@ -78,12 +79,17 @@
   :config
   (winner-mode))
 
-(defun my/move-to-other-window ()
-  (interactive)
-  (let* ((buffer (current-buffer))
+(defun my/move-to-other-window (arg)
+  (interactive "P")
+  (let* ((pop-up-windows (not arg))
+         (buffer (current-buffer))
          (other (display-buffer buffer t)))
     (switch-to-prev-buffer nil t)
     (select-window other)))
+
+(bind-keys* ("C-x o" . next-window-any-frame)
+            :repeat-map next-window-any-frame-repeat-map
+            ("o" . next-window-any-frame))
 
 (bind-keys ("C-c o" . my/move-to-other-window)
            ("C-x w b" . balance-windows)
@@ -143,6 +149,13 @@
 (defun my/quit-and-kill-window ()
   (interactive)
   (quit-window t))
+
+(defun my/quit-restore-select-window (orig-fun &rest args)
+  (let ((res (apply orig-fun args)))
+    (select-frame-set-input-focus (selected-frame))
+    res))
+
+(advice-add 'window--quit-restore-select-window :around #'my/quit-restore-select-window)
 
 (bind-keys ("C-x k"   . my/quit-and-kill-window)
            ("C-x C-b" . ibuffer))
@@ -227,6 +240,7 @@
    consult-bookmark consult-recent-file consult-xref
    consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
+   consult--source-buffer
    :preview-key "M-."))
 
 (use-package consult-eglot
