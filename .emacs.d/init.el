@@ -466,6 +466,7 @@
 (use-package eglot
   :hook (go-ts-mode       . eglot-ensure)
   :hook (python-base-mode . eglot-ensure)
+  :hook (rust-mode        . eglot-ensure)
 
   :bind
   (("C-c c d" . eglot-find-declaration)
@@ -485,7 +486,14 @@
   (setq eglot-workspace-configuration
         '((:python\.analysis . (:diagnosticMode "workspace"))))
 
-  (add-to-list 'eglot-server-programs '(glsl-ts-mode . ("glsl_analyzer"))))
+  (add-to-list 'eglot-server-programs
+               '(glsl-ts-mode
+                 . ("glsl_analyzer")))
+  (add-to-list 'eglot-server-programs
+               '((rust-ts-mode rust-mode)
+                 . ("rust-analyzer"
+                    :initializationOptions
+                    (:check (:command "clippy"))))))
 
 (defun my/eglot-organize-imports ()
   (interactive)
@@ -529,8 +537,8 @@
   :config
   (setq treesit-auto-install 'prompt)
   (setq treesit-auto-langs '(css dockerfile go gomod html javascript
-                                 json makefile markdown python toml
-                                 tsx typescript yaml))
+                                 json makefile markdown python rust
+                                 toml tsx typescript yaml))
   (treesit-auto-add-to-auto-mode-alist 'all)
   (global-treesit-auto-mode))
 
@@ -581,6 +589,7 @@
                #'my/python-indent-for-tab-command))
 
 (defun my/python-hook ()
+  (setq-local consult-dash-docsets '("Python 3" "Django"))
   (setq-local tab-always-indent t))
 
 (defun my/python-indent-for-tab-command ()
@@ -595,6 +604,10 @@
 
 (use-package pet
   :delight)
+
+(use-package rust-mode
+  :init
+  (setq rust-mode-treesitter-derive t))
 
 
 (use-package squirrel-mode
