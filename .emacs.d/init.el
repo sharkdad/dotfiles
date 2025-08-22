@@ -533,16 +533,6 @@
                                                  (file . hide))))
 
 
-(use-package treesit-auto
-  :config
-  (setq treesit-auto-install 'prompt)
-  (setq treesit-auto-langs '(css dockerfile go gomod html javascript
-                                 json makefile markdown python rust
-                                 toml tsx typescript yaml))
-  (treesit-auto-add-to-auto-mode-alist 'all)
-  (global-treesit-auto-mode))
-
-
 ;;; languages
 
 (setq c-default-style "java")
@@ -605,9 +595,7 @@
 (use-package pet
   :delight)
 
-(use-package rust-mode
-  :init
-  (setq rust-mode-treesitter-derive t))
+(use-package rust-mode)
 
 
 (use-package squirrel-mode
