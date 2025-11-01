@@ -176,9 +176,9 @@
 (savehist-mode)
 
 (setq completion-ignore-case t)
-(setq history-length 10000)
+(setq history-length t)
 (setq read-extended-command-predicate #'command-completion-default-include-p)
-(setq recentf-max-saved-items 1000)
+(setq recentf-max-saved-items nil)
 
 (use-package consult
   :bind
@@ -326,7 +326,7 @@
 (setq ansi-color-for-comint-mode t)
 (add-hook 'comint-output-filter-functions #'ansi-color-process-output)
 
-(setq comint-input-ring-size history-length)
+(setq comint-input-ring-size 99999)
 (setq comint-process-echoes t)
 (setq comint-prompt-read-only t)
 (setq comint-scroll-to-bottom-on-input t)
