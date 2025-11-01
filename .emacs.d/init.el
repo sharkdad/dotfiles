@@ -464,6 +464,7 @@
 
 
 (use-package eglot
+  :hook (gdscript-mode    . eglot-ensure)
   :hook (go-ts-mode       . eglot-ensure)
   :hook (python-base-mode . eglot-ensure)
   :hook (rust-mode        . eglot-ensure)
@@ -626,3 +627,5 @@
   (electric-pair-local-mode -1)
   (web-mode-set-engine "django"))
 
+(use-package gdscript-mode
+  :defer t)
