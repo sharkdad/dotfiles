@@ -99,7 +99,7 @@
            ("o"     . my/move-to-other-window))
 
 (use-package delight)
-(use-package ef-themes)
+;; (use-package ef-themes)
 (use-package mode-line-bell :config (mode-line-bell-mode))
 
 (setq rainbow-delimiters-max-face-count 5)
@@ -481,11 +481,13 @@
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
   (setq eglot-extend-to-xref t)
-  (setq eglot-ignored-server-capabilities '(:colorProvider :inlayHintProvider))
+  ;; (setq eglot-ignored-server-capabilities '(:colorProvider :inlayHintProvider))
   (setq eglot-report-progress nil)
   (setq eglot-sync-connect nil)
   (setq eglot-workspace-configuration
         '((:python\.analysis . (:diagnosticMode "workspace"))))
+
+  (add-hook 'eglot-managed-mode-hook #'eglot-inlay-hints-mode)
 
   (add-to-list 'eglot-server-programs
                '(glsl-ts-mode
