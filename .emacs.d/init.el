@@ -1,6 +1,4 @@
-
 ;;; init.el -*- lexical-binding: t; -*-
-
 
 ;;; package system
 
@@ -288,9 +286,9 @@
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 
-(use-package marginalia
-  :config
-  (marginalia-mode))
+;(use-package marginalia
+;  :config
+;  (marginalia-mode))
 
 
 (use-package orderless
@@ -332,6 +330,8 @@
 (setq comint-scroll-to-bottom-on-input t)
 (setq comint-terminfo-terminal "dumb-emacs-ansi")
 
+(setenv "DEBIAN_FRONTEND" "readline")
+
 (setq shell-command-prompt-show-cwd t)
 
 (add-hook 'shell-mode-hook #'compilation-shell-minor-mode)
@@ -369,14 +369,14 @@
         dired-create-destination-dirs 'ask))
 
 
-(use-package eat
-  :hook (eshell-load . eat-eshell-mode)
-  :bind
-  (("C-x p t" . eat-project))
-  :config
-  (require 'pcmpl-args)
-  (setq eat-enable-auto-line-mode t)
-  (setq eshell-visual-commands '()))
+;(use-package eat
+;  :hook (eshell-load . eat-eshell-mode)
+;  :bind
+;  (("C-x p t" . eat-project))
+;  :config
+;  (require 'pcmpl-args)
+;  (setq eat-enable-auto-line-mode t)
+;  (setq eshell-visual-commands '()))
 
 
 (setq eww-auto-rename-buffer 'title)
@@ -541,13 +541,13 @@
 (setq c-default-style "java")
 
 
-(use-package clojure-mode)
+;(use-package clojure-mode)
 
-(use-package cider
-  :config
-  (setq cider-clojure-cli-aliases ":dev:test")
-  (setq cider-eldoc-display-context-dependent-info t)
-  (setq cider-enable-nrepl-jvmti-agent t))
+;(use-package cider
+;  :config
+;  (setq cider-clojure-cli-aliases ":dev:test")
+;  (setq cider-eldoc-display-context-dependent-info t)
+;  (setq cider-enable-nrepl-jvmti-agent t))
 
 
 (setq go-ts-mode-indent-offset tab-width)
@@ -601,18 +601,18 @@
 (use-package rust-mode)
 
 
-(use-package squirrel-mode
-  :mode "\\.nut\\'"
-  :config
-  (add-hook 'squirrel-mode-hook #'my/squirrel-hook))
+;(use-package squirrel-mode
+;  :mode "\\.nut\\'"
+;  :config
+;  (add-hook 'squirrel-mode-hook #'my/squirrel-hook))
 
-(defun my/squirrel-hook ()
-  (setq-local indent-tabs-mode t))
+;(defun my/squirrel-hook ()
+;  (setq-local indent-tabs-mode t))
 
 
-(use-package tidal
-  :defer t
-  :mode "\\.tidal\\'")
+;(use-package tidal
+;  :defer t
+;  :mode "\\.tidal\\'")
 
 
 (use-package web-mode

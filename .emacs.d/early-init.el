@@ -39,6 +39,8 @@
 
 ;;; frame
 
+(add-to-list 'default-frame-alist '(undecorated . t))
+
 (setq frame-inhibit-implied-resize t)
 (setq frame-resize-pixelwise t)
 (setq window-divider-default-bottom-width 1
