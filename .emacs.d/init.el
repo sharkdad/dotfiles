@@ -318,6 +318,8 @@
 
 ;;; os
 
+(require 'pcmpl-args)
+
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
@@ -329,8 +331,6 @@
 (setq comint-prompt-read-only t)
 (setq comint-scroll-to-bottom-on-input t)
 (setq comint-terminfo-terminal "dumb-emacs-ansi")
-
-(setenv "DEBIAN_FRONTEND" "readline")
 
 (setq shell-command-prompt-show-cwd t)
 
@@ -369,14 +369,11 @@
         dired-create-destination-dirs 'ask))
 
 
-;(use-package eat
-;  :hook (eshell-load . eat-eshell-mode)
-;  :bind
-;  (("C-x p t" . eat-project))
-;  :config
-;  (require 'pcmpl-args)
-;  (setq eat-enable-auto-line-mode t)
-;  (setq eshell-visual-commands '()))
+(use-package eat
+  :hook (eshell-load . eat-eshell-mode)
+  :config
+  ;; (setq eat-enable-auto-line-mode t)
+  (setq eshell-visual-commands '()))
 
 
 (setq eww-auto-rename-buffer 'title)
