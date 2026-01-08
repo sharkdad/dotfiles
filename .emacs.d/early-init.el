@@ -30,8 +30,6 @@
               bidi-paragraph-direction 'left-to-right)
 (setq bidi-inhibit-bpa t)
 
-(setq idle-update-delay 1.0)
-
 (setq fast-but-imprecise-scrolling t)
 
 (advice-add #'display-startup-echo-area-message :override #'ignore)
@@ -39,14 +37,14 @@
 
 ;;; frame
 
-(add-to-list 'default-frame-alist '(undecorated . t))
+(setq initial-frame-alist '((fullscreen . maximized)
+                            (undecorated . t)))
 
 (setq frame-inhibit-implied-resize t)
 (setq frame-resize-pixelwise t)
 (setq window-divider-default-bottom-width 1
       window-divider-default-places t
-      window-divider-default-right-width 1
-      window-min-width 82)
+      window-divider-default-right-width 1)
 
 (setq frame-title-format "%b"
       icon-title-format "%b")

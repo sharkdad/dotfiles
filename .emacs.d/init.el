@@ -40,28 +40,17 @@
 
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
-(defun my/window-resize-golden (&optional window)
-  (interactive)
-  (let* ((window (window-normalize-window window))
-         (parent (window-parent window))
-         (horiz (window-left-child parent))
-         (parent-size (window-size parent horiz))
-         (curr-size (window-size window horiz))
-         (min-size (if horiz window-min-width window-min-height))
-         (max-size (- parent-size min-size))
-         (new-size (min max-size (* 2 (/ parent-size 3)))))
-    (window-resize window (- new-size curr-size) horiz)))
-
-(setq display-buffer-overriding-action
-      '((display-buffer-reuse-window display-buffer-in-previous-window)
-        (reusable-frames . t)))
 (setq display-buffer-base-action
-      '((display-buffer-use-some-frame display-buffer-use-some-window)))
-(setq even-window-sizes nil)
+      '((display-buffer-reuse-window
+         display-buffer-in-previous-window
+         display-buffer-use-least-recent-window)))
 (setq switch-to-buffer-obey-display-actions t)
 
+(defun my/override-display-buffer (old-fun &rest args)
+  (let ((display-buffer-overriding-action display-buffer-base-action))
+    (apply old-fun args)))
+
 (setq ad-redefinition-action 'accept)
-(setq help-window-select t)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
 (setq scroll-conservatively 10)
@@ -77,24 +66,22 @@
   :config
   (winner-mode))
 
-(defun my/move-to-other-window (arg)
-  (interactive "P")
-  (let* ((pop-up-windows (not arg))
-         (buffer (current-buffer))
-         (other (display-buffer buffer t)))
-    (switch-to-prev-buffer nil t)
-    (select-window other)))
+(defun my/move-to-other-window ()
+  (interactive)
+  (let* ((buffer (current-buffer)))
+    (display-buffer buffer t)
+    (switch-to-prev-buffer nil t)))
 
-(bind-keys* ("C-x o" . next-window-any-frame)
-            :repeat-map next-window-any-frame-repeat-map
-            ("o" . next-window-any-frame))
+(defun my/quit-and-kill-window ()
+  (interactive)
+  (quit-window t))
 
-(bind-keys ("C-c o" . my/move-to-other-window)
-           ("C-x w b" . balance-windows)
-           ("C-x w g" . my/window-resize-golden)
-           ("C-x w m" . toggle-frame-maximized)
-           :repeat-map my/move-to-other-window-repeat-map
-           ("o"     . my/move-to-other-window))
+(bind-keys* ("C-c o"   . my/move-to-other-window)
+            ("C-x k"   . my/quit-and-kill-window)
+            ("C-x C-b" . ibuffer)
+            ("C-x w b" . balance-windows)
+            ("C-x w m" . toggle-frame-maximized)
+            ("M-o"     . other-window))
 
 (use-package delight)
 ;; (use-package ef-themes)
@@ -102,12 +89,6 @@
 
 (setq rainbow-delimiters-max-face-count 5)
 (use-package rainbow-delimiters :hook prog-mode)
-
-(use-package which-key
-  :delight
-  :config
-  (setq which-key-idle-delay 0.5)
-  (which-key-mode))
 
 
 ;;; misc behavior
@@ -144,20 +125,6 @@
 (setq make-backup-files nil)
 (setq kill-buffer-delete-auto-save-files t)
 
-(defun my/quit-and-kill-window ()
-  (interactive)
-  (quit-window t))
-
-(defun my/quit-restore-select-window (orig-fun &rest args)
-  (let ((res (apply orig-fun args)))
-    (select-frame-set-input-focus (selected-frame))
-    res))
-
-(advice-add 'window--quit-restore-select-window :around #'my/quit-restore-select-window)
-
-(bind-keys ("C-x k"   . my/quit-and-kill-window)
-           ("C-x C-b" . ibuffer))
-
 (use-package avy
   :bind
   (("C-;" . avy-goto-line)
@@ -176,7 +143,7 @@
 (setq completion-ignore-case t)
 (setq history-length t)
 (setq read-extended-command-predicate #'command-completion-default-include-p)
-(setq recentf-max-saved-items nil)
+(setq recentf-max-saved-items 100)
 
 (use-package consult
   :bind
@@ -278,7 +245,6 @@
 (use-package embark
   :bind
   (("C-." . embark-act)
-   ;; ("M-." . embark-dwim)
    ("C-h B" . embark-bindings)))
 
 
@@ -286,9 +252,9 @@
   :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 
-;(use-package marginalia
-;  :config
-;  (marginalia-mode))
+(use-package marginalia
+  :config
+  (marginalia-mode))
 
 
 (use-package orderless
@@ -323,20 +289,12 @@
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
-(setq ansi-color-for-comint-mode t)
-(add-hook 'comint-output-filter-functions #'ansi-color-process-output)
-
 (setq comint-input-ring-size 99999)
 (setq comint-process-echoes t)
 (setq comint-prompt-read-only t)
 (setq comint-scroll-to-bottom-on-input t)
-(setq comint-terminfo-terminal "dumb-emacs-ansi")
 
 (setq shell-command-prompt-show-cwd t)
-
-(add-hook 'shell-mode-hook #'compilation-shell-minor-mode)
-
-(bind-keys ("C-c s" . shell))
 
 (defvar-local my/comint-history-variable nil)
 (advice-add 'comint-add-to-input-history :after-while #'my/comint-add-history)
@@ -371,8 +329,11 @@
 
 (use-package eat
   :hook (eshell-load . eat-eshell-mode)
+  :bind
+  (("C-c s"   . eshell)
+   ("C-x p s" . project-eshell))
+
   :config
-  ;; (setq eat-enable-auto-line-mode t)
   (setq eshell-visual-commands '()))
 
 
@@ -456,8 +417,7 @@
 
   :config
   (setq eldoc-documentation-strategy #'eldoc-documentation-compose)
-  (setq eldoc-echo-area-prefer-doc-buffer t)
-  (setq eldoc-echo-area-use-multiline-p 6))
+  (setq eldoc-echo-area-use-multiline-p nil))
 
 
 (use-package eglot
@@ -478,7 +438,6 @@
   (setq eglot-confirm-server-initiated-edits nil)
   (setq eglot-events-buffer-size 0)
   (setq eglot-extend-to-xref t)
-  ;; (setq eglot-ignored-server-capabilities '(:colorProvider :inlayHintProvider))
   (setq eglot-report-progress nil)
   (setq eglot-sync-connect nil)
   (setq eglot-workspace-configuration
@@ -500,32 +459,27 @@
   (eglot-code-actions nil nil "source.organizeImports" t))
 
 
-(defun my/flymake-project ()
-  (interactive)
-  (flymake-show-project-diagnostics)
-  (let* ((prj (project-current))
-         (root (project-root prj))
-         (buffer (flymake--project-diagnostics-buffer root)))
-    (select-window (get-buffer-window buffer))))
-
 (use-package flymake
   :ensure nil
   :bind
-  (("C-c f" . my/flymake-project)
+  (("C-x p e" . flymake-show-project-diagnostics)
    :map prog-mode-map
    ("M-n" . flymake-goto-next-error)
-   ("M-p" . flymake-goto-prev-error)))
+   ("M-p" . flymake-goto-prev-error))
+
+  :config
+  (setq flymake-show-diagnostics-at-end-of-line 'short)
+  (setq flymake-wrap-around t)
+
+  (advice-add 'flymake-show-buffer-diagnostics :around 'my/override-display-buffer)
+  (advice-add 'flymake-show-project-diagnostics :around 'my/override-display-buffer))
 
 
 (use-package magit
   :bind
   (("C-x g"   . magit-status)
    ("C-x M-g" . magit-dispatch)
-   ("C-c M-g" . magit-file-dispatch)
-   :map magit-file-section-map
-   ("RET"     . magit-diff-visit-file-other-window)
-   :map magit-hunk-section-map
-   ("RET"     . magit-diff-visit-file-other-window))
+   ("C-c M-g" . magit-file-dispatch))
 
   :config
   (setq magit-diff-refine-hunk 'all)
@@ -558,8 +512,6 @@
 (use-package markdown-mode
   :mode "\\.\\(?:md\\|markdown\\|mkd\\|mdown\\|mkdn\\|mdwn\\)\\'")
 
-
-(setenv "PYTHONUNBUFFERED" "1")
 
 (use-package python
   :ensure nil
