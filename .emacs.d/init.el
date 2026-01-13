@@ -41,18 +41,23 @@
 (add-hook 'prog-mode-hook #'my/prog-hook)
 
 (setq display-buffer-base-action
+      '((display-buffer-use-least-recent-window)))
+(setq display-buffer-overriding-action
       '((display-buffer-reuse-window
-         display-buffer-in-previous-window
-         display-buffer-use-least-recent-window)))
+         display-buffer-in-previous-window)))
 (setq switch-to-buffer-obey-display-actions t)
 
 (defun my/override-display-buffer (old-fun &rest args)
-  (let ((display-buffer-overriding-action display-buffer-base-action))
+  (let ((display-buffer-overriding-action
+         '((display-buffer-reuse-window
+            display-buffer-in-previous-window
+            display-buffer-use-least-recent-window))))
     (apply old-fun args)))
 
 (setq ad-redefinition-action 'accept)
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice #'recover-session)
+(setq split-height-threshold nil)
 (setq scroll-conservatively 10)
 (setq visible-bell t)
 (setq warning-minimum-level :error)
@@ -242,10 +247,35 @@
   (corfu-popupinfo-mode))
 
 
+
 (use-package embark
   :bind
   (("C-." . embark-act)
-   ("C-h B" . embark-bindings)))
+   ("C-h B" . embark-bindings)
+   :map embark-general-map
+   ("C-e" . my/embark-eglot-map))
+
+  :init
+  (setq prefix-help-command #'embark-prefix-help-command)
+
+  (defvar-keymap my/embark-eglot-map
+    :doc "Keymap for Embark eglot actions."
+    "a" 'eglot-code-actions
+    "d" 'eglot-find-declaration
+    "i" 'eglot-find-implementation
+    "t" 'eglot-find-typeDefinition
+    "r" 'eglot-rename
+    "q" 'eglot-code-action-quickfix)
+  (fset 'my/embark-eglot-map my/embark-eglot-map)
+
+  :config
+  (dolist (cmd '(eglot-code-actions
+                 eglot-find-declaration
+                 eglot-find-implementation
+                 eglot-find-typeDefinition
+                 eglot-rename
+                 eglot-code-action-quickfix))
+    (push 'embark--ignore-target (alist-get cmd embark-target-injection-hooks))))
 
 
 (use-package embark-consult
@@ -286,6 +316,8 @@
 
 (require 'pcmpl-args)
 
+(setq Man-width-max 100)
+
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
@@ -315,6 +347,11 @@
     (add-to-history my/comint-history-variable (substring-no-properties cmd))))
 
 
+(use-package compile
+  :ensure nil
+  :hook (eshell-mode . compilation-shell-minor-mode))
+
+
 (use-package dired
   :ensure nil
   :config
@@ -334,6 +371,9 @@
    ("C-x p s" . project-eshell))
 
   :config
+  (setq eshell-hist-ignoredups t)
+  (setq eshell-history-append t)
+  (setq eshell-history-size 999999)
   (setq eshell-visual-commands '()))
 
 
@@ -381,7 +421,10 @@
 
 ;;; dev
 
-(setq project-vc-extra-root-markers '("package-lock.json" ".venv"))
+(setq project-vc-extra-root-markers
+      '("Cargo.toml"
+        "package-lock.json"
+        ".venv"))
 
 (use-package dape
   :bind
@@ -407,6 +450,14 @@
   :bind (("M-s d" . consult-dash))
   :config
   (consult-customize consult-dash :initial (thing-at-point 'symbol)))
+
+
+(use-package ediff
+  :ensure nil
+  :config
+  (setq ediff-split-window-function #'split-window-horizontally)
+  (setq ediff-merge-split-window-function #'split-window-horizontally)
+  (setq ediff-window-setup-function #'ediff-setup-windows-plain))
 
 
 (use-package eldoc
@@ -482,6 +533,7 @@
    ("C-c M-g" . magit-file-dispatch))
 
   :config
+  (setq magit-ediff-dwim-show-on-hunks t)
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist '((stashes . hide)
                                                  (file . hide))))
@@ -547,7 +599,12 @@
 (use-package pet
   :delight)
 
-(use-package rust-mode)
+(defun my/rust-hook ()
+  (add-hook 'before-save-hook #'eglot-format-buffer nil t))
+
+(use-package rust-mode
+  :config
+  (add-hook 'rust-mode-hook #'my/rust-hook))
 
 
 ;(use-package squirrel-mode
