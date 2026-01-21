@@ -533,6 +533,7 @@
    ("C-c M-g" . magit-file-dispatch))
 
   :config
+  (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
   (setq magit-ediff-dwim-show-on-hunks t)
   (setq magit-diff-refine-hunk 'all)
   (setq magit-section-initial-visibility-alist '((stashes . hide)
