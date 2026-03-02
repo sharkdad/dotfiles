@@ -1,12 +1,4 @@
-[core]
-    autocrlf = false
-    pager = delta
-
-[pull]
-	ff = only
-
-[init]
-	defaultBranch = main
+# identity
 
 [user]
 	name = sharkdad
@@ -15,11 +7,47 @@
 [github]
     user = sharkdad
 
-[interactive]
-    diffFilter = delta --color-only
+
+# behavior
+
+[branch]
+    sort = -committerdate
+
+[column]
+    ui = auto
+
+[commit]
+    verbose = true
 
 [delta]
     navigate = true    # use n and N to move between diff sections
+    syntax-theme = none
+
+[core]
+    autocrlf = false
+    pager = delta
+
+[diff]
+    algorithm = histogram
+    colorMoved = plain
+    colorMovedWS = ignore-space-change
+    mnemonicPrefix = true
+    renames = copies
+
+[init]
+	defaultBranch = main
+
+[interactive]
+    diffFilter = delta --color-only
 
 [merge]
     conflictStyle = zdiff3
+
+[pull]
+	ff = only
+
+[push]
+    autoSetupRemote = true
+
+[tag]
+    sort = version:refname
