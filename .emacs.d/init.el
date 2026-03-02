@@ -117,8 +117,8 @@
 
 (setq kill-whole-line t)
 (setq line-move-visual nil)
-(setq truncate-lines nil)
 (setq truncate-partial-width-windows nil)
+(setq-default truncate-lines nil)
 (setq-default word-wrap t)
 
 (setq tab-always-indent 'complete)
@@ -321,13 +321,6 @@
 ;; FIXME: what do
 (setq tramp-histfile-override nil)
 
-(setq comint-input-ring-size 99999)
-(setq comint-process-echoes t)
-(setq comint-prompt-read-only t)
-(setq comint-scroll-to-bottom-on-input t)
-
-(setq shell-command-prompt-show-cwd t)
-
 (defvar-local my/comint-history-variable nil)
 (advice-add 'comint-add-to-input-history :after-while #'my/comint-add-history)
 
@@ -347,9 +340,26 @@
     (add-to-history my/comint-history-variable (substring-no-properties cmd))))
 
 
-(use-package compile
+(use-package ansi-color
   :ensure nil
-  :hook (eshell-mode . compilation-shell-minor-mode))
+  :hook (compilation-filter . ansi-color-compilation-filter))
+
+
+(use-package comint
+  :ensure nil
+
+  :config
+  (setq comint-input-ring-size 99999)
+  (setq comint-process-echoes t)
+  (setq comint-prompt-read-only t)
+  (setq comint-scroll-to-bottom-on-input t)
+  (setq comint-terminfo-terminal "xterm-256color")
+
+  (add-hook 'comint-output-filter-functions #'comint-osc-process-output))
+
+
+(use-package compile
+  :ensure nil)
 
 
 (use-package dired
@@ -364,17 +374,25 @@
         dired-create-destination-dirs 'ask))
 
 
-(use-package eat
-  :hook (eshell-load . eat-eshell-mode)
-  :bind
-  (("C-c s"   . eshell)
-   ("C-x p s" . project-eshell))
+(use-package eshell
+  :ensure nil
 
   :config
   (setq eshell-hist-ignoredups t)
   (setq eshell-history-append t)
   (setq eshell-history-size 999999)
   (setq eshell-visual-commands '()))
+
+
+(use-package shell
+  :ensure nil
+  :hook (shell-mode . compilation-shell-minor-mode)
+
+  :bind
+  (("C-c s"   . shell))
+
+  :config
+  (setq shell-command-prompt-show-cwd t))
 
 
 (setq eww-auto-rename-buffer 'title)
@@ -534,10 +552,12 @@
 
   :config
   (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (setq magit-ediff-dwim-show-on-hunks t)
   (setq magit-diff-refine-hunk 'all)
-  (setq magit-section-initial-visibility-alist '((stashes . hide)
-                                                 (file . hide))))
+  (setq magit-section-initial-visibility-alist '((untracked . show))))
+
+
+(use-package forge
+  :after magit)
 
 
 ;;; languages
@@ -638,3 +658,5 @@
 
 (use-package gdscript-mode
   :defer t)
+
+(use-package yaml-mode)
