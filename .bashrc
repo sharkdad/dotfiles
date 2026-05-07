@@ -4,14 +4,6 @@ case $- in
       *) return;;
 esac
 
-alias ll='ls -l'
-alias lla='ls -lA'
-alias la='ls -A'
-alias l='ls -CF'
-
-alias gr='git rev-parse --show-toplevel'
-alias wgr='watchexec --project-origin $(gr)'
-
 HISTCONTROL=ignoreboth
 HISTSIZE=10000
 HISTFILESIZE=20000
@@ -19,6 +11,20 @@ HISTFILESIZE=20000
 shopt -s checkwinsize
 shopt -s histappend
 shopt -s globstar
+
+alias ll='ls -l'
+alias lla='ls -lA'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias git-toplevel='git rev-parse --show-toplevel'
+alias w='watchexec --project-origin $(git-toplevel)'
+
+wgc() {
+    cd /work/src
+    git clone --separate-git-dir /work/git/$(basename "$1") "$1"
+    cd $(basename "$1" .git)
+}
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
