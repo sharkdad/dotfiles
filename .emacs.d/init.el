@@ -4,9 +4,10 @@
 
 (require 'package)
 (require 'use-package-ensure)
-(setq package-archives '(("melpa"  . "https://melpa.org/packages/")
-                         ("elpa"   . "https://elpa.gnu.org/packages/")
-                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("nongnu" . "https://elpa.nongnu.org/nongnu/")
+                         ("melpa"  . "https://melpa.org/packages/")))
+
 (package-initialize)
 (unless package-archive-contents (package-refresh-contents))
 (setq use-package-always-demand t)
@@ -21,6 +22,12 @@
 
 
 ;;; ui, display
+
+(defun insert-set-frame-font-form ()
+  "Insert an eval-able `set-frame-font' form for the current frame font."
+  (interactive)
+  (insert
+   (format "(set-frame-font %S)" (frame-parameter nil 'font))))
 
 (blink-cursor-mode -1)
 
@@ -247,6 +254,10 @@
 
 
 
+(use-package embark-consult
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+
+
 (use-package embark
   :bind
   (("C-." . embark-act)
@@ -275,10 +286,6 @@
                  eglot-rename
                  eglot-code-action-quickfix))
     (push 'embark--ignore-target (alist-get cmd embark-target-injection-hooks))))
-
-
-(use-package embark-consult
-  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 
 (use-package marginalia

@@ -1,4 +1,0 @@
-alias ghc git clone git@github.com:$@*
-alias la ls -a $*
-alias lla ll -a $*
-alias ll ls -l $*
