@@ -414,7 +414,7 @@
   (keymap-unset org-mode-map "C-'")
 
   (setq org-agenda-dim-blocked-tasks 'invisible)
-  (setq org-agenda-files '("~/sync/org/todo.org"))
+  (setq org-agenda-files '("/work/sync/org/todo.org"))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-tags-todo-honor-ignore-options t)
   (setq org-agenda-todo-ignore-deadlines 'all)
@@ -439,7 +439,7 @@
    ("C-c n l" . org-roam-buffer-toggle))
 
   :config
-  (setq org-roam-directory "~/sync/org/roam")
+  (setq org-roam-directory "/work/sync/org/roam")
   (org-roam-db-autosync-mode))
 
 
