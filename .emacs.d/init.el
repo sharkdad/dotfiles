@@ -390,12 +390,15 @@
   (setq eshell-visual-commands '()))
 
 
+(use-package ghostel
+  :bind
+  (("C-c s"   . ghostel)
+   ("C-x p s" . ghostel-project)))
+
+
 (use-package shell
   :ensure nil
   :hook (shell-mode . compilation-shell-minor-mode)
-
-  :bind
-  (("C-c s"   . shell))
 
   :config
   (setq shell-command-prompt-show-cwd t))
