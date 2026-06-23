@@ -136,6 +136,7 @@
 (setq auto-save-timeout 5)
 (setq make-backup-files nil)
 (setq kill-buffer-delete-auto-save-files t)
+(setq remote-file-name-inhibit-auto-save t)
 
 (use-package avy
   :bind
@@ -393,7 +394,10 @@
 (use-package ghostel
   :bind
   (("C-c s"   . ghostel)
-   ("C-x p s" . ghostel-project)))
+   ("C-x p s" . ghostel-project))
+
+  :config
+  (setq ghostel-tramp-shell-integration t))
 
 
 (use-package shell
@@ -551,6 +555,21 @@
 
   (advice-add 'flymake-show-buffer-diagnostics :around 'my/override-display-buffer)
   (advice-add 'flymake-show-project-diagnostics :around 'my/override-display-buffer))
+
+
+(use-package project
+  :ensure nil
+  :bind
+  (("C-x p m" . magit-project-status))
+
+  :config
+  (setq project-switch-commands
+        '((project-find-file "Find file")
+          (project-find-regexp "Find regexp")
+          (project-find-dir "Find directory")
+          (ghostel-project "Terminal")
+          (magit-project-status "Magit")
+          (project-any-command "Other"))))
 
 
 (use-package magit
