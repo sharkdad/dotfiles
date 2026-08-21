@@ -434,17 +434,36 @@
   :config
   (keymap-unset org-mode-map "C-'")
 
-  (setq org-agenda-dim-blocked-tasks 'invisible)
-  (setq org-agenda-files '("/work/sync/org/todo.org"))
+  (setq org-agenda-breadcrumbs-separator " › ")
+  (setq org-agenda-files '("/work/sync/org/roam/20260821041554-todo.org"))
   (setq org-agenda-start-on-weekday nil)
-  (setq org-agenda-tags-todo-honor-ignore-options t)
-  (setq org-agenda-todo-ignore-deadlines 'all)
-  (setq org-agenda-todo-ignore-scheduled 'all)
   (setq org-agenda-window-setup 'current-window)
   (setq org-enforce-todo-dependencies t)
   (setq org-enforce-todo-checkbox-dependencies t)
+  (setq org-habit-graph-column 50)
   (setq org-log-done 'time)
+  (setq org-priority-start-cycle-with-default nil)
   (setq org-startup-truncated nil)
+  (setq org-use-fast-todo-selection 'expert)
+
+  (setq org-todo-keywords
+        '((sequence
+           "TODO(t)"
+           "READY(r)"
+           "DONE(d)")))
+
+  (setq org-agenda-custom-commands
+        '(("d" "Dashboard"
+           ((todo "READY")
+            (agenda "")))
+          ("b" "Backlog" todo ""
+           ((org-agenda-sorting-strategy nil)))))
+
+  (setq org-agenda-prefix-format
+        '((agenda . " %i %-20b%?-12t% s")
+          (todo . " %i %-20b")
+          (tags . " %i %-20b")
+          (search . " %i %-20b")))
 
   (add-to-list 'org-modules 'org-habit t))
 
