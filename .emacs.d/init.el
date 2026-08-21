@@ -140,7 +140,7 @@
 (use-package avy
   :bind
   (("C-;" . avy-goto-line)
-   ("C-'" . avy-goto-whitespace-end)))
+   ("C-'" . avy-goto-char-timer)))
 
 (use-package expand-region
   :bind
@@ -274,32 +274,34 @@
   :bind
   (("C-." . embark-act)
    ("C-h B" . embark-bindings)
-   :map embark-general-map
-   ("C-e" . my/embark-eglot-map))
+   :map embark-identifier-map
+   ("c" . my/embark-code-map)
+   :map embark-region-map
+   ("c" . my/embark-code-map))
 
   :init
   (setq prefix-help-command #'embark-prefix-help-command)
 
-  (defvar-keymap my/embark-eglot-map
-    :doc "Keymap for Embark eglot actions."
+  (defvar-keymap my/embark-code-map
+    :doc "embark code actions"
     "a" 'eglot-code-actions
-    "h" 'eglot-x-open-external-documentation
     "d" 'eglot-find-declaration
+    "e" 'eglot-code-action-extract
+    "f" 'eglot-code-action-quickfix
     "i" 'eglot-find-implementation
     "t" 'eglot-find-typeDefinition
-    "f" 'eglot-x-find-refs
     "r" 'eglot-rename
-    "q" 'eglot-code-action-quickfix
     )
-  (fset 'my/embark-eglot-map my/embark-eglot-map)
+  (fset 'my/embark-code-map my/embark-code-map)
 
   :config
   (dolist (cmd '(eglot-code-actions
+                 eglot-code-action-extract
+                 eglot-code-action-quickfix
                  eglot-find-declaration
                  eglot-find-implementation
                  eglot-find-typeDefinition
-                 eglot-rename
-                 eglot-code-action-quickfix))
+                 eglot-rename))
     (push 'embark--ignore-target (alist-get cmd embark-target-injection-hooks))))
 
 
@@ -536,6 +538,8 @@
 
 
 (use-package eglot
+  :after yasnippet
+
   :hook (gdscript-mode    . eglot-ensure)
   :hook (go-ts-mode       . eglot-ensure)
   :hook (python-base-mode . eglot-ensure)
@@ -730,3 +734,5 @@
   :defer t)
 
 (use-package yaml-mode)
+
+(use-package yasnippet)
