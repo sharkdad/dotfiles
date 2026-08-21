@@ -109,7 +109,6 @@
 (global-auto-revert-mode)
 (global-goto-address-mode)
 (global-subword-mode)
-(repeat-mode)
 
 (setq bookmark-save-flag 1)
 (setq ffap-machine-p-known 'reject)
@@ -154,6 +153,7 @@
 (savehist-mode)
 
 (setq completion-ignore-case t)
+(setq enable-recursive-minibuffers t)
 (setq history-length t)
 (setq read-extended-command-predicate #'command-completion-default-include-p)
 (setq recentf-max-saved-items 100)
@@ -226,6 +226,14 @@
   ("M-g s" . consult-eglot-symbols))
 
 
+(defun corfu-move-to-minibuffer ()
+  (interactive)
+  (pcase completion-in-region--data
+    (`(,beg ,end ,table ,pred ,extras)
+     (let ((completion-extra-properties extras)
+           completion-cycle-threshold completion-cycling)
+       (consult-completion-in-region beg end table pred)))))
+
 (use-package corfu
   :demand t
   :config
@@ -239,19 +247,22 @@
           "TAB" #'corfu-complete
           "M-g" #'corfu-info-location
           "M-h" #'corfu-info-documentation
+          "M-m" #'corfu-move-to-minibuffer
           "M-SPC" #'corfu-insert-separator
           "C-M-;" #'corfu-quick-jump))
+
+  (add-to-list 'corfu-continue-commands #'corfu-move-to-minibuffer)
 
   (setq corfu-auto t)
   (setq corfu-preselect 'first)
   (setq corfu-preview-current nil)
   (global-corfu-mode)
 
-  (corfu-history-mode)
-  (add-to-list 'savehist-additional-variables 'corfu-history)
-
   (setq corfu-popupinfo-delay 0.5)
-  (corfu-popupinfo-mode))
+  (corfu-popupinfo-mode)
+
+  (corfu-history-mode)
+  (add-to-list 'savehist-additional-variables 'corfu-history))
 
 
 
@@ -272,11 +283,14 @@
   (defvar-keymap my/embark-eglot-map
     :doc "Keymap for Embark eglot actions."
     "a" 'eglot-code-actions
+    "h" 'eglot-x-open-external-documentation
     "d" 'eglot-find-declaration
     "i" 'eglot-find-implementation
     "t" 'eglot-find-typeDefinition
+    "f" 'eglot-x-find-refs
     "r" 'eglot-rename
-    "q" 'eglot-code-action-quickfix)
+    "q" 'eglot-code-action-quickfix
+    )
   (fset 'my/embark-eglot-map my/embark-eglot-map)
 
   :config
@@ -534,11 +548,20 @@
                '((rust-ts-mode rust-mode)
                  . ("rust-analyzer"
                     :initializationOptions
-                    (:check (:command "clippy"))))))
+                    (
+                     :check (:command "clippy")
+                     :workspace (:symbol (:search (:kind "all_symbols" :limit 512))))))))
 
 (defun my/eglot-organize-imports ()
   (interactive)
   (eglot-code-actions nil nil "source.organizeImports" t))
+
+
+(use-package eglot-x
+  :after eglot
+  :vc (:url "https://github.com/nemethf/eglot-x.git"
+            :rev :newest)
+  (eglot-x-setup))
 
 
 (use-package flymake
