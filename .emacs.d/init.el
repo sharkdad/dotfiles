@@ -274,6 +274,8 @@
   :bind
   (("C-." . embark-act)
    ("C-h B" . embark-bindings)
+   :map embark-expression-map
+   ("c" . my/embark-code-map)
    :map embark-identifier-map
    ("c" . my/embark-code-map)
    :map embark-region-map
