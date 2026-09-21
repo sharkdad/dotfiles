@@ -456,10 +456,10 @@
 
   (setq org-agenda-custom-commands
         '(("d" "Dashboard"
-           ((todo "READY")
+           ((todo "READY" ((org-agenda-dim-blocked-tasks 'invisible)
+                           (org-agenda-todo-ignore-scheduled 'future)))
             (agenda "")))
-          ("b" "Backlog" todo ""
-           ((org-agenda-sorting-strategy nil)))))
+          ("b" "Backlog" todo "" ((org-agenda-sorting-strategy nil)))))
 
   (setq org-agenda-prefix-format
         '((agenda . " %i %-20b%?-12t% s")

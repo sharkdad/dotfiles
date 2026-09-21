@@ -273,3 +273,7 @@ _launch=none
 
 [services][org.kde.krunner.desktop]
 _launch=Search\tMeta+Space
+
+[services][org.kde.spectacle.desktop]
+CurrentMonitorScreenShot=none
+OpenWithoutScreenshot=none
